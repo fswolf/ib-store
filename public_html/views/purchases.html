@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Orders - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<div class="account-view">
+
+				    <aside class="account-nav">
+				        <h2>Account</h2>
+				        <ul>
+				            <li><a href="/user/orders" class="active">Orders</a></li>
+				            <li><a href="/user/settings">Settings</a></li>
+				            <?php if(!empty($logged->is_admin)): ?><li><a href="/admin">Admin</a></li><?php endif; ?>
+				            <li><a href="/signout">Sign out</a></li>
+				        </ul>
+				    </aside>
+
+				    <div class="account-main">
+
+				        <h1>Orders</h1>
+
+				        <?php if (empty($orders)): ?>
+				        <p class="no-results">No orders yet. <a href="/items">Go find something.</a></p>
+				        <?php else: ?>
+				        <table class="order-lines orders-table">
+				            <thead>
+				                <tr><th>Order</th><th>Date</th><th>Items</th><th>Status</th><th class="num">Total</th></tr>
+				            </thead>
+				            <tbody>
+				                <?php foreach ($orders as $order): ?>
+				                <tr>
+				                    <td><a href="/user/orders/<?= htmlspecialchars($order->uuid) ?>"><code><?= substr($order->uuid, 0, 8) ?></code></a></td>
+				                    <td><?= date('M j, Y', strtotime($order->created)) ?></td>
+				                    <td><?= (int) $order->item_count ?></td>
+				                    <td><span class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span></td>
+				                    <td class="num">$<?= number_format((float) $order->total, 2) ?></td>
+				                </tr>
+				                <?php endforeach; ?>
+				            </tbody>
+				        </table>
+				        <?php endif; ?>
+
+				    </div>
+
+				</div>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

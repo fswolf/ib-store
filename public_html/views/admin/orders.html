@@ -1,0 +1,43 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <h1>Orders</h1>
+
+				        <!-- admin/orders.js runs tablesorter.js against /api/admin/orders/list?status=... -->
+				        <?php $picked = $_GET['status'] ?? ''; ?>
+				        <div class="table-tools">
+				            <input id="orders-search" type="search" placeholder="Search order id, email, name...">
+				            <select id="orders-status">
+				                <option value="">All statuses</option>
+				                <?php foreach ($statuses as $status): ?>
+				                <option value="<?= $status ?>"<?= $picked === $status ? ' selected' : '' ?>><?= ucfirst($status) ?></option>
+				                <?php endforeach; ?>
+				            </select>
+				            <select id="orders-rows">
+				                <option value="10">10 rows</option>
+				                <option value="25" selected>25 rows</option>
+				                <option value="50">50 rows</option>
+				                <option value="100">100 rows</option>
+				            </select>
+				        </div>
+
+				        <table id="orders-table" class="admin-table">
+				            <thead>
+				                <tr>
+				                    <th data-key="uuid">Order</th>
+				                    <th data-sort="created">Date</th>
+				                    <th data-sort="username">Customer</th>
+				                    <th data-sort="email">Email</th>
+				                    <th data-key="item_count" class="num">Items</th>
+				                    <th data-sort="status">Status</th>
+				                    <th data-sort="total" class="num">Total</th>
+				                </tr>
+				            </thead>
+				            <tbody></tbody>
+				        </table>
+
+				        <div class="table-foot">
+				            <div id="orders-info" class="table-info"></div>
+				            <ul id="orders-pager" class="pager"></ul>
+				        </div>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

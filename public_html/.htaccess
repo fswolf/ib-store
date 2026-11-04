@@ -1,0 +1,32 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?store.imbored.me [NC]
+RewriteRule \.(jpg|jpeg|png|gif)$ - [NC,F,L]
+
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/ [R=301,L]
+
+# Deny access to filenames starting with dot(.) .htaccess, .htpasswd, .env
+<FilesMatch "^\.">
+	Order allow,deny
+	Deny from all
+</FilesMatch>
+
+# Deny access to files with extensions .ini, .psd, .log, .sh
+<FilesMatch "\.(ini|psd|log|sh)$">
+	Order allow,deny
+	Deny from all
+</FilesMatch>
+
+# Hide the contents of directories
+IndexIgnore *
+
+# Disable directory browsing 
+Options -Indexes
+
+#Redirect Forbbiden Errors to 404 page
+ErrorDocument 403 /404

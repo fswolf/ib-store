@@ -1,0 +1,19 @@
+# secrets stay on the server, copy config.example.php to config.php
+public_html/config/config.php
+
+# written by the site at runtime
+public_html/cache/
+public_html/error.log
+
+# fetched by ./update-libs.sh, not kept in git
+public_html/assets/vendor/BTCPayServer/
+
+# local test server bits
+router.php
+php.log
+*.local.sql
+
+# review notes from the build passes, not part of the store
+docs/REVIEW.md
+
+.DS_Store

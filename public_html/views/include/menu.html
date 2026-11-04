@@ -1,0 +1,90 @@
+<nav class="top-nav">
+		        <div class="nav-inner">
+
+		            <div id="store-name" class="logo">
+		                <a href="/"><?= htmlspecialchars($store_name ?? 'Not Set') ?></a>
+		            </div>
+
+		            <button id="menu-toggle" class="menu-toggle" aria-label="Toggle Menu">
+		                ☰
+		            </button>
+
+		            <div id="nav-container" class="nav-container">
+
+		                <ul class="nav-links">
+		                    <li><a href="/">Home</a></li>
+		                    <li><a href="/items">Shop</a></li>
+
+		                    <li class="dropdown">
+		                        <a href="#" class="dropdown-toggle">Categories ▾</a>
+
+								<ul id="categories" class="dropdown-menu">
+								    <?php if (!empty($categories)): ?>
+
+								        <?php foreach ($categories as $cat): ?>
+
+								            <li>
+								                <a href="/items/<?=$cat->route?>"><?=$cat->name ?></a>
+								            </li>
+
+								        <?php endforeach; ?>
+
+								    <?php else: ?>
+
+								        <li><a href="#">Not Set</a></li>
+
+								    <?php endif; ?>
+
+								</ul>
+		                    </li>
+
+							<li><a href="/contact">Contact</a></li>
+
+							<?php if(!empty($logged)): ?>
+							<li class="dropdown">
+							    <a href="#" class="dropdown-toggle">Account ▾</a>
+							    <ul id="profile" class="dropdown-menu">
+							        <li class="dropdown-user">
+							            <span class="dropdown-user-label">Signed in as</span>
+							            <span class="dropdown-user-name"><?= htmlspecialchars($logged->username) ?></span>
+							        </li>
+							        <li><a href="/user/orders">Orders</a></li>
+							        <li><a href="/user/settings">Settings</a></li>
+							        <?php if(!empty($logged->is_admin)): ?>
+							        <li><a href="/admin">Admin</a></li>
+							        <?php endif; ?>
+							        <!--<li><a href="/my-store">My Store</a></li>-->
+							        <li class="dropdown-divider"></li>
+							        <li>
+							            <a href="/signout" class="signout-link">
+							                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+							                    <polyline points="16 17 21 12 16 7"></polyline>
+							                    <line x1="21" y1="12" x2="9" y2="12"></line>
+							                </svg>
+							                Sign out
+							            </a>
+							        </li>
+							    </ul>
+							</li>
+							<?php else: ?>
+							    <li><a href="/signin">Sign In</a></li>
+							<?php endif; ?>
+		                </ul>
+
+		                <div class="nav-search">
+		                    <input id="search" name="search" type="text" placeholder="Search products...">
+		                </div>
+
+		                <div class="nav-actions">
+		                    <a href="/cart" class="cart-btn">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart2" viewBox="0 0 16 16">
+								  <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
+								</svg> Cart (<span id="cart-count"><?= (int) ($cart_count ?? 0) ?></span>)
+							</a>
+		                </div>
+
+		            </div>
+
+		        </div>
+		    </nav>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title><?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/../include/menu.html'; ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+			    <!-- Browse Items -->
+			    <section class="product-section">
+			        <h2><?= htmlspecialchars($category ?? 'Browse Items') ?></h2>
+
+			        <div id="browse-items" class="product-grid">
+
+			            <!--<div class="product-card">
+			            	<span class="badge sale">Sale</span>
+			                <div class="product-image">
+			                	<img src="assets/images/items/mouse.png" alt="Gaming Mouse">
+			                </div>
+			                <h3>Gaming Mouse</h3>
+			                <p class="price">$39.99</p>
+			                <button>Add to Cart</button>
+			            </div>-->
+
+			        </div>
+			    </section>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/../include/footer.html' ?>  
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

@@ -1,0 +1,152 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <h1>Store Settings</h1>
+
+				        <?php $v = function($field) use ($info) { return htmlspecialchars((string) ($info->{$field} ?? '')); }; ?>
+
+				        <!-- admin/settings.js posts this to /api/admin/settings/save -->
+				        <form id="settings-form" class="admin-section">
+
+				            <h2>Store</h2>
+
+				            <div class="form-grid">
+				                <div class="form-group">
+				                    <label for="store_name">Store Name</label>
+				                    <input id="store_name" name="store_name" type="text" value="<?= $v('store_name') ?>" maxlength="150" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="company_name">Company Name <small>(footer)</small></label>
+				                    <input id="company_name" name="company_name" type="text" value="<?= $v('company_name') ?>" maxlength="150">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="email">Contact Email</label>
+				                    <input id="email" name="email" type="email" value="<?= $v('email') ?>" maxlength="255">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="phone">Phone</label>
+				                    <input id="phone" name="phone" type="tel" value="<?= $v('phone') ?>" maxlength="50">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="website">Website</label>
+				                    <input id="website" name="website" type="text" value="<?= $v('website') ?>" maxlength="255">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="timezone">Time Zone</label>
+				                    <input id="timezone" name="timezone" type="text" value="<?= $v('timezone') ?>" maxlength="100" placeholder="UTC">
+				                </div>
+
+				                <div class="form-group full-width">
+				                    <label for="logo">Logo path <small>(not used by the theme yet)</small></label>
+				                    <input id="logo" name="logo" type="text" value="<?= $v('logo') ?>" maxlength="255">
+				                </div>
+				            </div>
+
+				            <h2>Address <small>(contact page)</small></h2>
+
+				            <div class="form-grid">
+				                <div class="form-group full-width">
+				                    <label for="address_line1">Address Line 1</label>
+				                    <input id="address_line1" name="address_line1" type="text" value="<?= $v('address_line1') ?>" maxlength="255">
+				                </div>
+
+				                <div class="form-group full-width">
+				                    <label for="address_line2">Address Line 2</label>
+				                    <input id="address_line2" name="address_line2" type="text" value="<?= $v('address_line2') ?>" maxlength="255">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="city">City</label>
+				                    <input id="city" name="city" type="text" value="<?= $v('city') ?>" maxlength="100">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="state_province">Province / State</label>
+				                    <input id="state_province" name="state_province" type="text" value="<?= $v('state_province') ?>" maxlength="100">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="postal_code">Postal Code</label>
+				                    <input id="postal_code" name="postal_code" type="text" value="<?= $v('postal_code') ?>" maxlength="20">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="country">Country</label>
+				                    <input id="country" name="country" type="text" value="<?= $v('country') ?>" maxlength="100">
+				                </div>
+				            </div>
+
+				            <h2>Checkout</h2>
+
+				            <div class="form-grid">
+				                <div class="form-group">
+				                    <label for="currency">Currency <small>(3 letter code)</small></label>
+				                    <input id="currency" name="currency" type="text" value="<?= $v('currency') ?>" maxlength="3" pattern="[A-Za-z]{3}" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="tax_rate">Tax Rate % <small>(on the subtotal)</small></label>
+				                    <input id="tax_rate" name="tax_rate" type="number" step="0.01" min="0" value="<?= $v('tax_rate') ?>">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="shipping_flat">Flat Shipping <small>(per order with physical items)</small></label>
+				                    <input id="shipping_flat" name="shipping_flat" type="number" step="0.01" min="0" value="<?= $v('shipping_flat') ?>">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="free_shipping_over">Free Shipping Over <small>(blank = never)</small></label>
+				                    <input id="free_shipping_over" name="free_shipping_over" type="number" step="0.01" min="0" value="<?= $v('free_shipping_over') ?>">
+				                </div>
+				            </div>
+
+				            <div class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Settings</button>
+				            </div>
+				        </form>
+
+				        <section class="admin-section">
+				            <h2>Mail</h2>
+				            <p class="form-hint">
+				                <?php if ($mail_enabled): ?>
+				                Order and password reset emails go out through the server's mail as <?= htmlspecialchars(MAIL_FROM) ?> (MAIL_FROM in config/config.php).
+				                <?php else: ?>
+				                Outgoing mail is off: MAIL_FROM in config/config.php is empty or php mail() is missing on this server.
+				                <?php endif; ?>
+				            </p>
+				            <?php if ($mail_enabled): ?>
+				            <!-- admin/settings.js posts this to /api/admin/settings/testmail -->
+				            <form id="testmail-form" class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Send a test email to <?= htmlspecialchars($logged->email) ?></button>
+				            </form>
+				            <?php endif; ?>
+				        </section>
+
+				        <section class="admin-section">
+				            <h2>Payments</h2>
+				            <p class="form-hint">
+				                <?php if (isset($gateways['btcpay'])): ?>
+				                Bitcoin through BTCPay Server at <?= htmlspecialchars(BTCPAY_URL) ?> is on. Webhook: <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/btcpay/webhook</code>
+				                <?php else: ?>
+				                Bitcoin is off. Fill in the BTCPAY_* settings in config/config.php to turn it on (docs/README.md has the steps).
+				                <?php endif; ?>
+				                <br>
+				                <?php if (isset($gateways['stripe'])): ?>
+				                Cards through Stripe Checkout are on. Webhook: <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/stripe/webhook</code>
+				                <?php else: ?>
+				                Cards are off. Fill in STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET in config/config.php to turn them on.
+				                <?php endif; ?>
+				                <br>
+				                <?php if (isset($gateways['paypal'])): ?>
+				                PayPal is on<?= PAYPAL_SANDBOX ? ' (sandbox)' : '' ?>. Webhook (optional): <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/paypal/webhook</code><?= PAYPAL_WEBHOOK_ID === '' ? ', not set up, the store captures when the customer comes back instead' : '' ?>
+				                <?php else: ?>
+				                PayPal is off. Fill in PAYPAL_CLIENT_ID and PAYPAL_SECRET in config/config.php to turn it on.
+				                <?php endif; ?>
+				            </p>
+				        </section>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

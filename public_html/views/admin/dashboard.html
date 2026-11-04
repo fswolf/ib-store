@@ -1,0 +1,54 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <h1>Dashboard</h1>
+
+				        <div class="stat-grid">
+				            <a class="stat-card" href="/admin/orders?status=pending">
+				                <span class="stat-value"><?= (int) $stats['pending'] ?></span>
+				                <span class="stat-label">Pending orders</span>
+				            </a>
+				            <a class="stat-card" href="/admin/orders?status=paid">
+				                <span class="stat-value"><?= (int) $stats['paid'] ?></span>
+				                <span class="stat-label">Paid, to ship</span>
+				            </a>
+				            <div class="stat-card">
+				                <span class="stat-value">$<?= number_format((float) $stats['revenue'], 2) ?></span>
+				                <span class="stat-label">Revenue (<?= (int) $stats['sales'] ?> paid orders)</span>
+				            </div>
+				            <a class="stat-card" href="/admin/products">
+				                <span class="stat-value"><?= (int) $product_count ?></span>
+				                <span class="stat-label">Products</span>
+				            </a>
+				            <a class="stat-card" href="/admin/accounts">
+				                <span class="stat-value"><?= (int) $account_count ?></span>
+				                <span class="stat-label">Accounts</span>
+				            </a>
+				        </div>
+
+				        <section class="admin-section">
+				            <h2>Recent Orders</h2>
+
+				            <?php if (empty($recent)): ?>
+				            <p class="no-results">No orders yet.</p>
+				            <?php else: ?>
+				            <table class="admin-table">
+				                <thead>
+				                    <tr><th>Order</th><th>Date</th><th>Customer</th><th>Items</th><th>Status</th><th class="num">Total</th></tr>
+				                </thead>
+				                <tbody>
+				                    <?php foreach ($recent as $order): ?>
+				                    <tr>
+				                        <td><a href="/admin/orders/<?= htmlspecialchars($order->uuid) ?>"><code><?= substr($order->uuid, 0, 8) ?></code></a></td>
+				                        <td><?= date('M j, Y', strtotime($order->created)) ?></td>
+				                        <td><?= htmlspecialchars($order->username ?? $order->email) ?></td>
+				                        <td><?= (int) $order->item_count ?></td>
+				                        <td><span class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span></td>
+				                        <td class="num">$<?= number_format((float) $order->total, 2) ?></td>
+				                    </tr>
+				                    <?php endforeach; ?>
+				                </tbody>
+				            </table>
+				            <?php endif; ?>
+				        </section>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

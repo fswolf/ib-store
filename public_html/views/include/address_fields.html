@@ -1,0 +1,59 @@
+<?php
+	// address form fields, used by checkout and account settings
+	// set $prefix ('billing' / 'shipping') and $address (AddressesModel or false) before including
+	$a = !empty($address) ? $address : null;
+	$v = function($field) use ($a) { return htmlspecialchars((string) ($a->{$field} ?? '')); };
+?>
+<div class="form-grid">
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-first_name">First Name</label>
+        <input id="<?= $prefix ?>-first_name" name="first_name" type="text" value="<?= $v('first_name') ?>" autocomplete="given-name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-last_name">Last Name</label>
+        <input id="<?= $prefix ?>-last_name" name="last_name" type="text" value="<?= $v('last_name') ?>" autocomplete="family-name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-company">Company <small>(optional)</small></label>
+        <input id="<?= $prefix ?>-company" name="company" type="text" value="<?= $v('company') ?>" autocomplete="organization">
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-phone">Phone <small>(optional)</small></label>
+        <input id="<?= $prefix ?>-phone" name="phone" type="tel" value="<?= $v('phone') ?>" autocomplete="tel">
+    </div>
+
+    <div class="form-group full-width">
+        <label for="<?= $prefix ?>-address_1">Street Address</label>
+        <input id="<?= $prefix ?>-address_1" name="address_1" type="text" value="<?= $v('address_1') ?>" autocomplete="address-line1" required>
+    </div>
+
+    <div class="form-group full-width">
+        <label for="<?= $prefix ?>-address_2">Apt, Suite, Unit <small>(optional)</small></label>
+        <input id="<?= $prefix ?>-address_2" name="address_2" type="text" value="<?= $v('address_2') ?>" autocomplete="address-line2">
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-city">City</label>
+        <input id="<?= $prefix ?>-city" name="city" type="text" value="<?= $v('city') ?>" autocomplete="address-level2" required>
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-province">Province / State</label>
+        <input id="<?= $prefix ?>-province" name="province" type="text" value="<?= $v('province') ?>" autocomplete="address-level1" required>
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-postal_code">Postal Code</label>
+        <input id="<?= $prefix ?>-postal_code" name="postal_code" type="text" value="<?= $v('postal_code') ?>" autocomplete="postal-code" required>
+    </div>
+
+    <div class="form-group">
+        <label for="<?= $prefix ?>-country">Country</label>
+        <input id="<?= $prefix ?>-country" name="country" type="text" value="<?= $v('country') ?>" autocomplete="country-name" required>
+    </div>
+
+</div>

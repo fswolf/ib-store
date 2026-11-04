@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Checkout - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__.'/../include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<?php $physical = !empty($cart['totals']['has_physical']); ?>
+
+				<div class="checkout-view">
+
+				    <!-- Left Side, shipping.js posts the two forms to /api/cart/checkout -->
+				    <div class="checkout-form">
+
+				        <h1>Checkout</h1>
+
+				        <form id="billing-form" class="checkout-section" autocomplete="on">
+
+				            <h2>Billing Information</h2>
+
+				            <div class="form-group full-width">
+				                <label>Email Address</label>
+				                <input type="email" value="<?= htmlspecialchars($logged->email) ?>" disabled>
+				                <small class="form-hint">Order updates go to your account email. Change it in <a href="/user/settings">settings</a>.</small>
+				            </div>
+
+				            <?php $prefix = 'billing'; $address = $billing; include __DIR__ . '/../include/address_fields.html'; ?>
+
+				        </form>
+
+						<?php if ($physical): ?>
+						<div class="same-address">
+						    <label>
+						        <input id="same-address" type="checkbox"<?= empty($shipping) ? ' checked' : '' ?>>
+						        Shipping address is the same as billing
+						    </label>
+						</div>
+
+						<form id="shipping-form" class="checkout-section" autocomplete="on">
+
+						    <h2>Shipping Address</h2>
+
+						    <?php $prefix = 'shipping'; $address = $shipping; include __DIR__ . '/../include/address_fields.html'; ?>
+
+						</form>
+						<?php else: ?>
+						<section class="checkout-section">
+						    <h2>Shipping</h2>
+						    <p class="form-hint">Everything in this order is a download, nothing to ship.</p>
+						</section>
+						<?php endif; ?>
+
+				        <section class="checkout-section">
+				            <h2>Order Notes</h2>
+							<textarea id="order-notes" class="order-notes" maxlength="2000" placeholder="Special instructions, delivery notes, gate codes, preferred delivery times, etc."></textarea>
+				        </section>
+
+				    </div>
+
+				    <!-- Right Side -->
+				    <div class="checkout-summary">
+
+				        <h2>Order Summary</h2>
+
+				        <?php foreach ($cart['items'] as $item): ?>
+				        <div class="summary-item">
+				            <span><?= htmlspecialchars($item['name']) ?><?= $item['qty'] > 1 ? ' × ' . (int) $item['qty'] : '' ?></span>
+				            <span>$<?= number_format((float) $item['line_total'], 2) ?></span>
+				        </div>
+				        <?php endforeach; ?>
+
+				        <hr>
+
+				        <div class="summary-item">
+				            <span>Subtotal</span>
+				            <span>$<?= number_format((float) $cart['totals']['subtotal'], 2) ?></span>
+				        </div>
+
+				        <div class="summary-item">
+				            <span>Shipping</span>
+				            <span><?= $physical ? '$' . number_format((float) $cart['totals']['shipping'], 2) : 'None' ?></span>
+				        </div>
+
+				        <div class="summary-item">
+				            <span>Tax<?= (float) $cart['totals']['tax_rate'] > 0 ? ' (' . rtrim(rtrim($cart['totals']['tax_rate'], '0'), '.') . '%)' : '' ?></span>
+				            <span>$<?= number_format((float) $cart['totals']['tax'], 2) ?></span>
+				        </div>
+
+				        <hr>
+
+				        <div class="summary-item total">
+				            <span>Total</span>
+				            <span>$<?= number_format((float) $cart['totals']['total'], 2) ?> <small><?= htmlspecialchars($cart['totals']['currency']) ?></small></span>
+				        </div>
+
+				        <button id="place-order" class="place-order-btn" data-csrf="<?= $csrf_token ?>">
+				            Place Order
+				        </button>
+
+				        <p class="form-hint">Payment is the next step, nothing is charged yet.</p>
+
+				        <div class="payment-icons">
+						    <span>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card" viewBox="0 0 16 16">
+								  <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
+								  <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+								</svg>
+						    </span>
+						    <span>
+						    	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paypal" viewBox="0 0 16 16">
+								  <path d="M14.06 3.713c.12-1.071-.093-1.832-.702-2.526C12.628.356 11.312 0 9.626 0H4.734a.7.7 0 0 0-.691.59L2.005 13.509a.42.42 0 0 0 .415.486h2.756l-.202 1.28a.628.628 0 0 0 .62.726H8.14c.429 0 .793-.31.862-.731l.025-.13.48-3.043.03-.164.001-.007a.35.35 0 0 1 .348-.297h.38c1.266 0 2.425-.256 3.345-.91q.57-.403.993-1.005a4.94 4.94 0 0 0 .88-2.195c.242-1.246.13-2.356-.57-3.154a2.7 2.7 0 0 0-.76-.59l-.094-.061ZM6.543 8.82a.7.7 0 0 1 .321-.079H8.3c2.82 0 5.027-1.144 5.672-4.456l.003-.016q.326.186.548.438c.546.623.679 1.535.45 2.71-.272 1.397-.866 2.307-1.663 2.874-.802.57-1.842.815-3.043.815h-.38a.87.87 0 0 0-.863.734l-.03.164-.48 3.043-.024.13-.001.004a.35.35 0 0 1-.348.296H5.595a.106.106 0 0 1-.105-.123l.208-1.32z"/>
+								</svg>
+						    </span>
+						    <span>
+							    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-bitcoin" viewBox="0 0 16 16">
+									<path d="M5.5 13v1.25c0 .138.112.25.25.25h1a.25.25 0 0 0 .25-.25V13h.5v1.25c0 .138.112.25.25.25h1a.25.25 0 0 0 .25-.25V13h.084c1.992 0 3.416-1.033 3.416-2.82 0-1.502-1.007-2.323-2.186-2.44v-.088c.97-.242 1.683-.974 1.683-2.19C11.997 3.93 10.847 3 9.092 3H9V1.75a.25.25 0 0 0-.25-.25h-1a.25.25 0 0 0-.25.25V3h-.573V1.75a.25.25 0 0 0-.25-.25H5.75a.25.25 0 0 0-.25.25V3l-1.998.011a.25.25 0 0 0-.25.25v.989c0 .137.11.25.248.25l.755-.005a.75.75 0 0 1 .745.75v5.505a.75.75 0 0 1-.75.75l-.748.011a.25.25 0 0 0-.25.25v1c0 .138.112.25.25.25zm1.427-8.513h1.719c.906 0 1.438.498 1.438 1.312 0 .871-.575 1.362-1.877 1.362h-1.28zm0 4.051h1.84c1.137 0 1.756.58 1.756 1.524 0 .953-.626 1.45-2.158 1.45H6.927z"/>
+								</svg>
+							</span>
+				        </div>
+
+				    </div>
+
+				</div>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__.'/../include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

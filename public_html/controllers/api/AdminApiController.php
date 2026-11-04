@@ -1,0 +1,278 @@
+<?php
+// POST /api/admin/<section>/<action> : everything the admin pages save or list. admin accounts only
+class AdminApiController extends ApiController {
+    public function handle() {
+        $parts = $this->parts();
+        $this->checkOrigin();
+        $this->requireAdmin();
+
+        $section = $parts[0] ?? '';
+        $action = $parts[1] ?? '';
+
+        switch ($section) {
+            case 'products':   $this->products($action, $parts[2] ?? ''); break;
+            case 'categories': $this->categories($action); break;
+            case 'orders':     $this->orders($action); break;
+            case 'accounts':   $this->accounts($action); break;
+            case 'settings':   $this->settings($action); break;
+            default: Flight::halt(404);
+        }
+    }
+
+    // -- Tables -- //
+    // tablesorter.js posts {request, input, rows, offset, sort, order} and wants {success, total, rows}
+    private function table($data, $count, $page) {
+        $rows = min(max((int) ($data->rows ?? 10), 1), 200);
+        $offset = max((int) ($data->offset ?? 0), 0);
+        $search = trim((string) ($data->input ?? ''));
+        $sort = (string) ($data->sort ?? '');
+        $order = (string) ($data->order ?? 'desc');
+
+        return ['total' => $count($search), 'rows' => $page($rows, $offset, $sort, $order, $search)];
+    }
+
+    // -- Products -- //
+    private function products($action, $sub) {
+        switch ($action) {
+            case 'list':
+                $this->respond(function() {
+                    $data = $this->input();
+                    return $this->table($data,
+                        fn($search) => ProductsModel::count($search),
+                        fn($rows, $offset, $sort, $order, $search) => ProductsModel::getPage($rows, $offset, $sort ?: 'id', $order, $search));
+                });
+                break;
+
+            // POST {id?, ...FIELDS, csrf_token}
+            case 'save':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $product = !empty($data->id) ? ProductsModel::getProduct((int) $data->id) : new ProductsModel();
+                    if (!$product) throw new Exception('Product not found');
+                    $product->fill($data)->save();
+                    return ['message' => 'Saved.', 'id' => (int) $product->id, 'slug' => $product->slug, 'redirect' => empty($data->id) ? '/admin/products/' . $product->id : null];
+                });
+                break;
+
+            // POST {id, csrf_token}
+            case 'delete':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $product = ProductsModel::getProduct((int) ($data->id ?? 0));
+                    if (!$product) throw new Exception('Product not found');
+                    foreach (ProductImgModel::getAll($product->id) as $image) $this->unlinkImage($image->image);
+                    ProductsModel::delete($product->id);
+                    return ['message' => 'Deleted.', 'redirect' => '/admin/products'];
+                });
+                break;
+
+            // multipart POST: product_id, image (file), csrf_token. not json like the rest
+            case 'image':
+                if ($sub === 'delete' || $sub === 'main') {
+                    $this->respond(function() use ($sub) {
+                        $data = $this->input();
+                        $this->checkCsrf($data);
+                        $image = ProductImgModel::get((int) ($data->id ?? 0));
+                        if (!$image) throw new Exception('Image not found');
+                        if ($sub === 'main') {
+                            ProductImgModel::setMain($image->id);
+                            return ['message' => 'Main image set.'];
+                        }
+                        ProductImgModel::delete($image->id);
+                        $this->unlinkImage($image->image);
+                        return ['message' => 'Image removed.'];
+                    });
+                    break;
+                }
+
+                $this->respond(function() {
+                    $this->checkCsrf((object) $_POST);
+                    $product = ProductsModel::getProduct((int) ($_POST['product_id'] ?? 0));
+                    if (!$product) throw new Exception('Product not found');
+                    $path = $this->saveUpload($_FILES['image'] ?? null, $product->slug);
+                    $image = ProductImgModel::add($product->id, $path);
+                    return ['message' => 'Image added.', 'image' => ['id' => (int) $image->id, 'image' => $image->image, 'sort_order' => (int) $image->sort_order]];
+                });
+                break;
+
+            default: Flight::halt(404);
+        }
+    }
+
+    // checks type by content not extension, names the file after the product slug
+    private function saveUpload($file, $slug) {
+        if (!$file || !isset($file['error']) || is_array($file['error'])) throw new Exception('No file uploaded');
+        if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Upload failed (code ' . $file['error'] . ')');
+        if ($file['size'] > ITEM_IMAGE_MAX) throw new Exception('Image is bigger than ' . round(ITEM_IMAGE_MAX / 1024 / 1024) . ' MB');
+
+        $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        if (!isset($types[$mime])) throw new Exception('Only jpg, png, webp or gif images');
+
+        $dir = $_SERVER['DOCUMENT_ROOT'] . '/' . ITEM_IMAGE_DIR;
+        if (!is_dir($dir) && !mkdir($dir, 0755, true)) throw new Exception('Cannot create the image folder');
+
+        // slug-1.png, slug-2.png ... first free number
+        $n = 1;
+        do {
+            $name = $slug . '-' . $n++ . '.' . $types[$mime];
+        } while (file_exists($dir . $name));
+
+        if (!move_uploaded_file($file['tmp_name'], $dir . $name)) throw new Exception('Could not save the image');
+        return ITEM_IMAGE_DIR . $name;
+    }
+
+    // only touches files inside the item image folder
+    private function unlinkImage($path) {
+        if (!str_starts_with($path, ITEM_IMAGE_DIR) || str_contains($path, '..')) return;
+        $file = $_SERVER['DOCUMENT_ROOT'] . '/' . $path;
+        if (is_file($file)) unlink($file);
+    }
+
+    // -- Categories -- //
+    private function categories($action) {
+        switch ($action) {
+            case 'save':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $category = !empty($data->id) ? CategoriesModel::get((int) $data->id) : new CategoriesModel();
+                    if (!$category) throw new Exception('Category not found');
+                    $category->fill($data)->save();
+                    return ['message' => 'Saved.', 'id' => (int) $category->id];
+                });
+                break;
+
+            case 'delete':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    if (!CategoriesModel::delete((int) ($data->id ?? 0))) throw new Exception('Category not found');
+                    return ['message' => 'Deleted.'];
+                });
+                break;
+
+            default: Flight::halt(404);
+        }
+    }
+
+    // -- Orders -- //
+    private function orders($action) {
+        switch ($action) {
+            // ?status=pending on the endpoint filters the table
+            case 'list':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $status = (string) ($_GET['status'] ?? '');
+                    return $this->table($data,
+                        fn($search) => OrdersModel::count($search, $status),
+                        fn($rows, $offset, $sort, $order, $search) => OrdersModel::getPage($rows, $offset, $sort ?: 'created', $order, $search, $status));
+                });
+                break;
+
+            // POST {id, status, csrf_token}
+            case 'status':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $order = OrdersModel::get((int) ($data->id ?? 0));
+                    if (!$order) throw new Exception('Order not found');
+                    $from = $order->status;
+                    $order->setStatus((string) ($data->status ?? ''));
+                    OrderMailLibrary::statusChanged($order, $from, $order->status); // customer hears about paid / shipped / cancelled
+                    return ['message' => 'Order marked ' . $order->status . '.', 'status' => $order->status];
+                });
+                break;
+
+            // POST {id, notes, csrf_token}
+            case 'notes':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $order = OrdersModel::get((int) ($data->id ?? 0));
+                    if (!$order) throw new Exception('Order not found');
+                    $order->saveAdminNotes(mb_substr((string) ($data->notes ?? ''), 0, 5000));
+                    return ['message' => 'Notes saved.'];
+                });
+                break;
+
+            default: Flight::halt(404);
+        }
+    }
+
+    // -- Accounts -- //
+    private function accounts($action) {
+        switch ($action) {
+            case 'list':
+                $this->respond(function() {
+                    $data = $this->input();
+                    return $this->table($data,
+                        fn($search) => AccountsModel::count($search),
+                        fn($rows, $offset, $sort, $order, $search) => AccountsModel::getPage($rows, $offset, $sort ?: 'id', $order, $search));
+                });
+                break;
+
+            // POST {id, username, email, is_admin, verified, notes, csrf_token}
+            case 'save':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $account = AccountsModel::getAccount((int) ($data->id ?? 0));
+                    if (!$account) throw new Exception('Account not found');
+
+                    $username = AccountsModel::checkUsername($data->username ?? '', $account);
+                    $email = AccountsModel::checkEmail($data->email ?? '', $account);
+
+                    // you cannot take admin off yourself, that is how a store ends up with no admin
+                    $is_admin = !empty($data->is_admin) ? 1 : 0;
+                    if ($account->id == $this->user->id && !$is_admin) throw new Exception('You cannot remove your own admin flag');
+
+                    $account->username = $username;
+                    $account->email = $email;
+                    $account->is_admin = $is_admin;
+                    $account->verified = !empty($data->verified) ? 1 : 0;
+                    $account->notes = mb_substr(trim((string) ($data->notes ?? '')), 0, 256) ?: null;
+                    $account->saveAdmin();
+                    return ['message' => 'Saved.'];
+                });
+                break;
+
+            default: Flight::halt(404);
+        }
+    }
+
+    // -- Settings -- //
+    private function settings($action) {
+        switch ($action) {
+            // POST {csrf_token}: a test mail to the signed in admin, so the server's mail can be checked from the panel
+            case 'testmail':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    if (!MailLibrary::enabled()) throw new Exception('Mail is off: MAIL_FROM in config/config.php is empty or php mail() is missing');
+
+                    $info = StoreInfoModel::getContact();
+                    $mail = new MailLibrary(['from_name' => $info->store_name]);
+                    $mail->send($this->user->email, "{$info->store_name} test email",
+                        MailLibrary::card($info->store_name, 'Test email', 'If you are reading this, outgoing mail from ' . htmlspecialchars($_SERVER['HTTP_HOST'] ?? '') . ' works.<br>Sent ' . date('M j, Y g:i a') . ' from the admin panel.'), true);
+                    return ['message' => 'Sent to ' . $this->user->email . '. Check the spam folder too.'];
+                });
+                break;
+
+            case 'save':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $info = StoreInfoModel::getAll();
+                    if (!$info) throw new Exception('store_info has no row, add one in the database first');
+                    $info->fill($data)->update();
+                    return ['message' => 'Settings saved.'];
+                });
+                break;
+
+            default: Flight::halt(404);
+        }
+    }
+}

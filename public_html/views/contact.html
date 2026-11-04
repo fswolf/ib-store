@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title><?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html'; ?>
+		</header>
+
+		<main class="store-main">
+		    <div class="container">
+
+		        <section class="contact-view">
+
+		            <div class="contact-card">
+		                <h1>Contact Us</h1>
+		                <p class="contact-intro">Questions about an order or a product? Reach us any of the ways below.</p>
+
+		                <dl id="contact-info" class="contact-list" aria-busy="true">
+		                    <div class="contact-row placeholder"><dt>Email</dt><dd>&nbsp;</dd></div>
+		                    <div class="contact-row placeholder"><dt>Phone</dt><dd>&nbsp;</dd></div>
+		                    <div class="contact-row placeholder"><dt>Address</dt><dd>&nbsp;</dd></div>
+		                </dl>
+		            </div>
+
+		            <aside class="contact-side">
+		                <h2 id="contact-company"><?= htmlspecialchars($company_name ?? $store_name ?? '') ?></h2>
+		                <p class="contact-note">We usually reply within one business day.</p>
+		                <ul id="contact-meta" class="contact-meta"></ul>
+		            </aside>
+
+		        </section>
+
+		    </div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>  
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

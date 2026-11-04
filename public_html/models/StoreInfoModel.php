@@ -1,0 +1,137 @@
+<?php
+
+class StoreInfoModel {
+	public $id;
+	public $store_name;
+	public $company_name;
+	public $email;
+	public $phone;
+	public $address_line1;
+	public $address_line2;
+	public $city;
+	public $state_province;
+	public $postal_code;
+	public $country;
+	public $website;
+	public $currency;
+	public $tax_rate;
+	public $shipping_flat;
+	public $free_shipping_over;
+	public $timezone;
+	public $logo;
+	public $created_at;
+	public $updated_at;
+
+	public function __construct($properties = []) {
+		foreach ($properties as $key => $value) {
+			$this->{$key} = $value;
+		}
+	}
+
+	public static function getAll() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT * FROM `store_info` LIMIT 1');
+		$select->execute();
+		$record = $select->fetch(); // was fetchAll, which wrapped the row in another array
+
+		if($record) return new StoreInfoModel($record);
+		return false;
+	}
+
+	public static function getBase() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT store_name, company_name, currency FROM `store_info` LIMIT 1');
+		$select->execute();
+		$record = $select->fetch();
+
+		if($record) return new StoreInfoModel($record);
+		return false;
+	}
+
+	public static function getContact() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT store_name, company_name, email, phone, address_line1, address_line2, city, state_province, postal_code, country, website, currency, timezone, logo FROM `store_info` LIMIT 1');
+		$select->execute();
+		$record = $select->fetch();
+
+		if($record) return new StoreInfoModel($record);
+		return false;
+	}
+
+	// what checkout needs to total a cart
+	public static function getRates() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT currency, tax_rate, shipping_flat, free_shipping_over FROM `store_info` LIMIT 1');
+		$select->execute();
+		$record = $select->fetch();
+
+		if($record) return new StoreInfoModel($record);
+		return new StoreInfoModel(array('currency' => 'USD', 'tax_rate' => 0, 'shipping_flat' => 0, 'free_shipping_over' => null));
+	}
+
+	// the columns the admin settings form is allowed to touch
+	const FIELDS = array('store_name', 'company_name', 'email', 'phone', 'address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country', 'website', 'currency', 'tax_rate', 'shipping_flat', 'free_shipping_over', 'timezone', 'logo');
+
+	public function fill($data) {
+		$store_name = trim((string) ($data->store_name ?? ''));
+		if ($store_name === '' || mb_strlen($store_name) > 150) throw new Exception('Store name is required');
+
+		$currency = strtoupper(trim((string) ($data->currency ?? 'USD')));
+		if (!preg_match('/^[A-Z]{3}$/', $currency)) throw new Exception('Currency is the 3 letter code, like USD or CAD');
+
+		foreach (array('tax_rate', 'shipping_flat') as $field) {
+			$value = (string) ($data->{$field} ?? '0');
+			if ($value === '') $value = '0';
+			if (!is_numeric($value) || $value < 0) throw new Exception(ucfirst(str_replace('_', ' ', $field)) . ' must be a number');
+			$this->{$field} = number_format((float) $value, 2, '.', '');
+		}
+
+		$free = trim((string) ($data->free_shipping_over ?? ''));
+		if ($free !== '' && (!is_numeric($free) || $free < 0)) throw new Exception('Free shipping over must be a number or empty');
+		$this->free_shipping_over = $free === '' ? null : number_format((float) $free, 2, '.', '');
+
+		$this->store_name = $store_name;
+		$this->currency = $currency;
+		foreach (array('company_name', 'email', 'phone', 'address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country', 'website', 'timezone', 'logo') as $field) {
+			$value = trim((string) ($data->{$field} ?? ''));
+			if (mb_strlen($value) > 255) throw new Exception(ucfirst(str_replace('_', ' ', $field)) . ' is too long');
+			$this->{$field} = $value === '' ? null : $value;
+		}
+		if ($this->timezone === null) $this->timezone = 'UTC';
+		return $this;
+	}
+
+	public function update($data = null) {
+		$db = new DatabaseLibrary();
+
+		$sql = "UPDATE store_info SET
+			store_name = :store_name,
+			company_name = :company_name,
+			email = :email,
+			phone = :phone,
+			address_line1 = :address_line1,
+			address_line2 = :address_line2,
+			city = :city,
+			state_province = :state_province,
+			postal_code = :postal_code,
+			country = :country,
+			website = :website,
+			currency = :currency,
+			tax_rate = :tax_rate,
+			shipping_flat = :shipping_flat,
+			free_shipping_over = :free_shipping_over,
+			timezone = :timezone,
+			logo = :logo
+			WHERE id = :id
+			LIMIT 1";
+
+		// no array passed: save this object (after fill())
+		if ($data === null) {
+			$data = array(':id' => (int) $this->id);
+			foreach (self::FIELDS as $field) $data[':' . $field] = $this->{$field};
+		}
+
+		$stmt = $db->pdo->prepare($sql);
+		return $stmt->execute($data);
+	}
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title><?= htmlspecialchars($product->name) ?> - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/../include/menu.html'; ?>
+		</header>
+
+		<main class="store-main">
+		    <div class="container">
+
+		        <?php
+		        	// condition and badge come from the db as small ints, see the products table comments
+		        	$conditions = array(0 => array('new', 'New'), 1 => array('open-box', 'Open Box'), 2 => array('used', 'Used'));
+		        	$con = $conditions[(int) $product->con] ?? $conditions[0];
+		        	$badges = array(1 => array('new', 'New'), 2 => array('sale', 'Sale'), 3 => array('disc', 'Discontinued'));
+		        	$badge = $badges[(int) $product->badge] ?? null;
+		        	$main = $images[0]->image ?? null;
+		        	$in_stock = $product->digital || $product->stock > 0;
+		        ?>
+
+		        <div class="product-view" data-id="<?= (int) $product->id ?>">
+
+		            <!-- Left Side -->
+		            <div class="product-details">
+
+						<div class="product-gallery">
+
+						    <div class="product-image-large">
+						        <?php if ($main): ?>
+						        <img id="main-image" src="/<?= htmlspecialchars($main) ?>" alt="<?= htmlspecialchars($product->name) ?>">
+						        <?php else: ?>
+						        <div class="product-image-holder"></div>
+						        <?php endif; ?>
+						    </div>
+
+						    <?php if (count($images) > 1): ?>
+						    <div class="product-thumbnails">
+						        <?php foreach ($images as $i => $image): ?>
+						        <img class="thumbnail<?= $i === 0 ? ' active' : '' ?>" src="/<?= htmlspecialchars($image->image) ?>" alt="<?= htmlspecialchars($product->name) ?> <?= $i + 1 ?>">
+						        <?php endforeach; ?>
+						    </div>
+						    <?php endif; ?>
+
+						</div>
+
+		                <div class="product-info">
+		                    <h1><?= htmlspecialchars($product->name) ?></h1>
+
+							<div class="product-meta">
+							    <?php if ($product->sku): ?>SKU: <?= htmlspecialchars($product->sku) ?> • <?php endif; ?>Category: <a href="/items/<?= htmlspecialchars($product->category_route ?? '') ?>"><?= htmlspecialchars($product->category_name ?? 'None') ?></a>
+							    <?php if ($product->digital): ?> • Digital download<?php endif; ?>
+							</div>
+
+							<div class="product-condition <?= $con[0] ?>">
+							    <?= $con[1] ?>
+							</div>
+
+							<?php if (!empty($product->description)): ?>
+		                    <p><?= nl2br(htmlspecialchars($product->description)) ?></p>
+		                    <?php else: ?>
+		                    <p class="product-nodesc">No description yet.</p>
+		                    <?php endif; ?>
+
+		                    <?php if (!$product->active): ?>
+		                    <p class="product-inactive">This item is hidden from the store (admin preview).</p>
+		                    <?php endif; ?>
+		                </div>
+
+		            </div>
+
+		            <!-- Right Side -->
+		            <div class="purchase-box">
+
+		                <?php if ($badge): ?><span class="badge <?= $badge[0] ?>"><?= $badge[1] ?></span><?php endif; ?>
+
+		                <h2>$<?= number_format((float) $product->price, 2) ?> <small><?= htmlspecialchars($currency ?? '') ?></small></h2>
+
+		                <?php if ($product->digital): ?>
+		                <div class="stock-status">Instant download after payment</div>
+		                <?php elseif ($product->stock > 0): ?>
+		                <div class="stock-status">In Stock<?= $product->stock <= 5 ? ' (only ' . (int) $product->stock . ' left)' : '' ?></div>
+		                <?php else: ?>
+		                <div class="stock-status out">Out of Stock</div>
+		                <?php endif; ?>
+
+		                <?php if (!$product->digital): ?>
+		                <label for="qty">Quantity</label>
+
+		                <input type="number" id="qty" min="1" max="<?= max(1, (int) $product->stock) ?>" value="1">
+		                <?php endif; ?>
+
+		                <button class="add-cart-btn" data-id="<?= (int) $product->id ?>"<?= $in_stock ? '' : ' disabled' ?>>Add to Cart</button>
+		            </div>
+
+		        </div>
+
+		        <?php if (!empty($related)): ?>
+				<section class="related-products">
+
+				    <h2>Related Products</h2>
+
+				    <div class="related-wrapper">
+
+				        <button class="carousel-btn prev-btn">
+				            &#10094;
+				        </button>
+
+				        <div class="related-track">
+
+				            <?php foreach ($related as $item): ?>
+				            <div class="product-card related-card">
+				                <?php if ($item->image): ?>
+				                <div class="product-image">
+				                    <img src="/<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->name) ?>" loading="lazy">
+				                </div>
+				                <?php else: ?>
+				                <div class="product-image-holder"></div>
+				                <?php endif; ?>
+
+				                <h3><?= htmlspecialchars($item->name) ?></h3>
+				                <p class="price">$<?= number_format((float) $item->price, 2) ?></p>
+
+				                <a href="/item/<?= htmlspecialchars($item->slug) ?>" class="view-product-btn">
+				                    View Product
+				                </a>
+				            </div>
+				            <?php endforeach; ?>
+
+				        </div>
+
+				        <button class="carousel-btn next-btn">
+				            &#10095;
+				        </button>
+
+				    </div>
+
+				</section>
+				<?php endif; ?>
+
+		    </div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/../include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

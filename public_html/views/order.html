@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Order - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<div class="account-view">
+
+				    <aside class="account-nav">
+				        <h2>Account</h2>
+				        <ul>
+				            <li><a href="/user/orders" class="active">Orders</a></li>
+				            <li><a href="/user/settings">Settings</a></li>
+				            <?php if(!empty($logged->is_admin)): ?><li><a href="/admin">Admin</a></li><?php endif; ?>
+				            <li><a href="/signout">Sign out</a></li>
+				        </ul>
+				    </aside>
+
+				    <div class="account-main">
+
+				        <h1>Order <code><?= substr($order->uuid, 0, 8) ?></code></h1>
+
+				        <p class="order-ref">Placed <?= date('M j, Y g:i a', strtotime($order->created)) ?> · <span class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span>
+				        <?php if ($order->status === 'pending'): ?> · <a href="/cart/payment/<?= htmlspecialchars($order->uuid) ?>">Go to payment</a><?php endif; ?></p>
+
+				        <div class="account-section">
+				            <?php include __DIR__ . '/include/order_summary.html'; ?>
+
+				            <div class="order-totals">
+				                <div class="summary-item"><span>Subtotal</span><span>$<?= number_format((float) $order->subtotal, 2) ?></span></div>
+				                <div class="summary-item"><span>Shipping</span><span><?= $order->has_physical ? '$' . number_format((float) $order->shipping, 2) : 'None' ?></span></div>
+				                <div class="summary-item"><span>Tax</span><span>$<?= number_format((float) $order->tax, 2) ?></span></div>
+				                <div class="summary-item total"><span>Total</span><span>$<?= number_format((float) $order->total, 2) ?> <small><?= htmlspecialchars($order->currency) ?></small></span></div>
+				            </div>
+				        </div>
+
+				    </div>
+
+				</div>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

@@ -1,0 +1,58 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <h1>Categories</h1>
+
+				        <!-- admin/categories.js: edit buttons fill the form, the form posts to /api/admin/categories/save -->
+				        <table class="admin-table" id="categories-table">
+				            <thead>
+				                <tr><th>Name</th><th>Route</th><th>Description</th><th class="num">Products</th><th>Active</th><th></th></tr>
+				            </thead>
+				            <tbody>
+				                <?php foreach ($all_categories as $cat): ?>
+				                <tr data-id="<?= (int) $cat->id ?>" data-name="<?= htmlspecialchars($cat->name) ?>" data-route="<?= htmlspecialchars($cat->route) ?>" data-description="<?= htmlspecialchars($cat->description ?? '') ?>" data-active="<?= (int) $cat->active ?>">
+				                    <td><?= htmlspecialchars($cat->name) ?></td>
+				                    <td><a href="/items/<?= htmlspecialchars($cat->route) ?>" target="_blank" rel="noopener">/items/<?= htmlspecialchars($cat->route) ?></a></td>
+				                    <td><?= htmlspecialchars($cat->description ?? '') ?></td>
+				                    <td class="num"><?= (int) $cat->product_count ?></td>
+				                    <td><?= $cat->active ? 'Yes' : 'No' ?></td>
+				                    <td class="row-actions">
+				                        <button type="button" class="btn-link edit-category">Edit</button>
+				                        <?php if (!$cat->product_count): ?><button type="button" class="btn-link delete-category">Delete</button><?php endif; ?>
+				                    </td>
+				                </tr>
+				                <?php endforeach; ?>
+				            </tbody>
+				        </table>
+
+				        <form id="category-form" class="admin-section">
+				            <h2 id="category-form-title">New Category</h2>
+				            <input type="hidden" name="id" value="">
+
+				            <div class="form-grid">
+				                <div class="form-group">
+				                    <label for="name">Name</label>
+				                    <input id="name" name="name" type="text" maxlength="36" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="route">Route <small>(url, blank = from the name)</small></label>
+				                    <input id="route" name="route" type="text" maxlength="100" pattern="[a-z0-9-]*">
+				                </div>
+
+				                <div class="form-group full-width">
+				                    <label for="description">Description</label>
+				                    <input id="description" name="description" type="text" maxlength="255">
+				                </div>
+
+				                <div class="form-group check-group">
+				                    <label><input name="active" type="checkbox" value="1" checked> Active (shows in the menu)</label>
+				                </div>
+				            </div>
+
+				            <div class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Category</button>
+				                <button type="button" id="category-reset" class="btn-link">Clear</button>
+				            </div>
+				        </form>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

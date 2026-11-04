@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Reset Password - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<div class="auth-wrapper">
+
+				    <div class="auth-card">
+
+				        <h1>Reset Password</h1>
+
+				        <?php if (!empty($token_ok)): ?>
+				        <p class="auth-subtitle">Pick a new password for your account.</p>
+
+				        <form id="reset-form">
+
+				            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+
+				            <div class="form-group">
+				                <label for="password">New Password</label>
+				                <input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+				            </div>
+
+				            <div class="form-group">
+				                <label for="confirm">Confirm Password</label>
+				                <input id="confirm" name="confirm" type="password" autocomplete="new-password" required>
+				            </div>
+
+				            <button type="submit" class="auth-btn" data-csrf="<?= $csrf_token ?>">
+				                Change Password
+				            </button>
+
+				        </form>
+				        <?php else: ?>
+				        <p class="auth-subtitle">
+				            That reset link is not valid any more. Links last <?= round(RESET_LIFE / 60) ?> minutes and only the newest one works.
+				        </p>
+
+				        <div class="auth-footer">
+				            <a href="/forgot">Ask for a new link</a>
+				        </div>
+				        <?php endif; ?>
+
+				        <div class="auth-footer">
+				            <a href="/signin">Back to Sign In</a>
+				        </div>
+
+				    </div>
+
+				</div>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

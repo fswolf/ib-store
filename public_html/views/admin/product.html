@@ -1,0 +1,123 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <div class="admin-head">
+				            <h1><?= $product->id ? 'Edit Product' : 'New Product' ?></h1>
+				            <?php if ($product->id): ?><a href="/item/<?= htmlspecialchars($product->slug) ?>" class="btn-link" target="_blank" rel="noopener">View in store</a><?php endif; ?>
+				        </div>
+
+				        <!-- admin/product.js posts this to /api/admin/products/save, images go to /api/admin/products/image as multipart -->
+				        <form id="product-form" class="admin-section" data-id="<?= (int) $product->id ?>">
+				            <input type="hidden" name="id" value="<?= (int) $product->id ?>">
+
+				            <div class="form-grid">
+
+				                <div class="form-group full-width">
+				                    <label for="name">Name</label>
+				                    <input id="name" name="name" type="text" value="<?= htmlspecialchars($product->name ?? '') ?>" maxlength="255" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="slug">Slug <small>(url, blank = from the name)</small></label>
+				                    <input id="slug" name="slug" type="text" value="<?= htmlspecialchars($product->slug ?? '') ?>" maxlength="255" pattern="[a-z0-9-]*">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="sku">SKU</label>
+				                    <input id="sku" name="sku" type="text" value="<?= htmlspecialchars($product->sku ?? '') ?>" maxlength="100">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="category_id">Category</label>
+				                    <select id="category_id" name="category_id" required>
+				                        <option value="">Pick one</option>
+				                        <?php foreach ($all_categories as $cat): ?>
+				                        <option value="<?= (int) $cat->id ?>"<?= $cat->id == $product->category_id ? ' selected' : '' ?>><?= htmlspecialchars($cat->name) ?><?= $cat->active ? '' : ' (hidden)' ?></option>
+				                        <?php endforeach; ?>
+				                    </select>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="con">Condition</label>
+				                    <select id="con" name="con">
+				                        <option value="0"<?= (int) $product->con === 0 ? ' selected' : '' ?>>New</option>
+				                        <option value="1"<?= (int) $product->con === 1 ? ' selected' : '' ?>>Open Box</option>
+				                        <option value="2"<?= (int) $product->con === 2 ? ' selected' : '' ?>>Used</option>
+				                    </select>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="price">Price (<?= htmlspecialchars($currency ?? '') ?>)</label>
+				                    <input id="price" name="price" type="number" step="0.01" min="0" value="<?= htmlspecialchars($product->price ?? '0.00') ?>" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="stock">Stock <small>(ignored for digital)</small></label>
+				                    <input id="stock" name="stock" type="number" step="1" min="0" value="<?= (int) $product->stock ?>">
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="badge">Badge</label>
+				                    <select id="badge" name="badge">
+				                        <option value="0"<?= (int) $product->badge === 0 ? ' selected' : '' ?>>None</option>
+				                        <option value="1"<?= (int) $product->badge === 1 ? ' selected' : '' ?>>New</option>
+				                        <option value="2"<?= (int) $product->badge === 2 ? ' selected' : '' ?>>Sale</option>
+				                        <option value="3"<?= (int) $product->badge === 3 ? ' selected' : '' ?>>Discontinued</option>
+				                    </select>
+				                </div>
+
+				                <div class="form-group check-group">
+				                    <label><input name="active" type="checkbox" value="1"<?= $product->active ? ' checked' : '' ?>> Active (shows in the store)</label>
+				                    <label><input name="featured" type="checkbox" value="1"<?= $product->featured ? ' checked' : '' ?>> Featured (home page)</label>
+				                    <label><input name="newest" type="checkbox" value="1"<?= $product->newest ? ' checked' : '' ?>> New Items (home page)</label>
+				                    <label><input id="digital" name="digital" type="checkbox" value="1"<?= $product->digital ? ' checked' : '' ?>> Digital download (no shipping)</label>
+				                </div>
+
+				                <div class="form-group full-width" id="download-group">
+				                    <label for="download_url">Download URL <small>(handed out once the order is paid)</small></label>
+				                    <input id="download_url" name="download_url" type="text" value="<?= htmlspecialchars($product->download_url ?? '') ?>" maxlength="255" placeholder="https://... or /downloads/file.zip">
+				                </div>
+
+				                <div class="form-group full-width">
+				                    <label for="description">Description</label>
+				                    <textarea id="description" name="description" rows="8"><?= htmlspecialchars($product->description ?? '') ?></textarea>
+				                </div>
+
+				            </div>
+
+				            <div class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>"><?= $product->id ? 'Save Product' : 'Create Product' ?></button>
+				                <?php if ($product->id): ?>
+				                <button type="button" id="delete-product" class="btn-danger">Delete Product</button>
+				                <?php endif; ?>
+				            </div>
+				        </form>
+
+				        <?php if ($product->id): ?>
+				        <section class="admin-section">
+				            <h2>Images</h2>
+				            <p class="form-hint">The first image is the one on the cards. jpg, png, webp or gif, up to <?= round(ITEM_IMAGE_MAX / 1024 / 1024) ?> MB.</p>
+
+				            <div id="image-list" class="image-list">
+				                <?php foreach ($images as $image): ?>
+				                <div class="image-card" data-id="<?= (int) $image->id ?>">
+				                    <img src="/<?= htmlspecialchars($image->image) ?>" alt="">
+				                    <div class="image-actions">
+				                        <button type="button" class="btn-link image-main"<?= (int) $image->sort_order === 1 ? ' disabled' : '' ?>><?= (int) $image->sort_order === 1 ? 'Main image' : 'Make main' ?></button>
+				                        <button type="button" class="btn-link image-delete">Remove</button>
+				                    </div>
+				                </div>
+				                <?php endforeach; ?>
+				            </div>
+
+				            <form id="image-form" class="image-upload">
+				                <input type="hidden" name="product_id" value="<?= (int) $product->id ?>">
+				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+				                <input id="image-file" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
+				                <button type="submit" class="btn">Upload Image</button>
+				            </form>
+				        </section>
+				        <?php else: ?>
+				        <p class="form-hint">Images can be added once the product is created.</p>
+				        <?php endif; ?>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

@@ -1,0 +1,70 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <div class="admin-head">
+				            <h1>Order <code><?= substr($order->uuid, 0, 8) ?></code></h1>
+				            <a href="/admin/orders" class="btn-link">Back to orders</a>
+				        </div>
+
+				        <p class="order-ref">
+				            Placed <?= date('M j, Y g:i a', strtotime($order->created)) ?>
+				            · <span id="order-status" class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span>
+				            <?php if ($order->paid_at): ?> · paid <?= date('M j, Y g:i a', strtotime($order->paid_at)) ?><?php endif; ?>
+				            <?php if ($order->payment_method): ?> · <?= htmlspecialchars($order->payment_method) ?> <?= htmlspecialchars($order->payment_ref ?? '') ?><?php endif; ?>
+				            <br><small>full id <code><?= htmlspecialchars($order->uuid) ?></code></small>
+				        </p>
+
+				        <!-- admin/order.js: the status select posts to /api/admin/orders/status, notes to /api/admin/orders/notes -->
+				        <div class="order-grid">
+
+				            <div>
+				                <section class="admin-section">
+				                    <h2>Customer</h2>
+				                    <?php if ($account): ?>
+				                    <p><strong><?= htmlspecialchars($account->username) ?></strong> · <a href="mailto:<?= htmlspecialchars($order->email) ?>"><?= htmlspecialchars($order->email) ?></a><br>
+				                    <small>account #<?= (int) $account->id ?>, registered <?= date('M j, Y', strtotime($account->registered)) ?></small></p>
+				                    <?php else: ?>
+				                    <p><a href="mailto:<?= htmlspecialchars($order->email) ?>"><?= htmlspecialchars($order->email) ?></a><br><small>account deleted</small></p>
+				                    <?php endif; ?>
+				                </section>
+
+				                <section class="admin-section">
+				                    <?php include __DIR__ . '/../include/order_summary.html'; ?>
+				                </section>
+				            </div>
+
+				            <div>
+				                <section class="admin-section">
+				                    <h2>Totals</h2>
+				                    <div class="order-totals">
+				                        <div class="summary-item"><span>Subtotal</span><span>$<?= number_format((float) $order->subtotal, 2) ?></span></div>
+				                        <div class="summary-item"><span>Shipping</span><span><?= $order->has_physical ? '$' . number_format((float) $order->shipping, 2) : 'None' ?></span></div>
+				                        <div class="summary-item"><span>Tax</span><span>$<?= number_format((float) $order->tax, 2) ?></span></div>
+				                        <div class="summary-item total"><span>Total</span><span>$<?= number_format((float) $order->total, 2) ?> <small><?= htmlspecialchars($order->currency) ?></small></span></div>
+				                    </div>
+				                </section>
+
+				                <form id="status-form" class="admin-section" data-id="<?= (int) $order->id ?>">
+				                    <h2>Status</h2>
+				                    <div class="form-group">
+				                        <select name="status">
+				                            <?php foreach ($statuses as $status): ?>
+				                            <option value="<?= $status ?>"<?= $order->status === $status ? ' selected' : '' ?>><?= ucfirst($status) ?></option>
+				                            <?php endforeach; ?>
+				                        </select>
+				                        <small class="form-hint">Cancelling a pending order puts the stock back. Paid unlocks the downloads for the customer.</small>
+				                    </div>
+				                    <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Update Status</button>
+				                </form>
+
+				                <form id="notes-form" class="admin-section" data-id="<?= (int) $order->id ?>">
+				                    <h2>Admin Notes</h2>
+				                    <div class="form-group">
+				                        <textarea name="notes" rows="5" maxlength="5000" placeholder="Tracking number, what was said on the phone, anything the customer does not see."><?= htmlspecialchars($order->admin_notes ?? '') ?></textarea>
+				                    </div>
+				                    <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Notes</button>
+				                </form>
+				            </div>
+
+				        </div>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

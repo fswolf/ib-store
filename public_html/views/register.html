@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Create Account - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" type="image/x-icon" href="/assets/images/bored.png">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<div class="auth-wrapper">
+
+				    <div class="auth-card register-card">
+
+				        <h1>Create Account</h1>
+
+				        <p class="auth-subtitle">
+				            Create your <?= htmlspecialchars($store_name ?? '') ?> account and start shopping.
+				        </p>
+
+				        <form id="register-form">
+
+				            <div class="form-group">
+				                <label for="username">Username</label>
+				                <input id="username" name="username" type="text" placeholder="3 to 32 characters" autocomplete="username" required>
+				            </div>
+
+				            <div class="form-group">
+				                <label for="email">Email Address</label>
+				                <input id="email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required>
+				            </div>
+
+				            <div class="form-group">
+				                <label for="password">Password</label>
+				                <input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+				            </div>
+
+				            <div class="form-group">
+				                <label for="confirm">Confirm Password</label>
+				                <input id="confirm" name="confirm" type="password" autocomplete="new-password" required>
+				            </div>
+
+				            <button type="submit" class="auth-btn" data-csrf="<?= $csrf_token ?>">
+				                Create Account
+				            </button>
+
+				        </form>
+
+				        <div class="auth-footer">
+				            Already have an account?
+				            <a href="/signin">Sign In</a>
+				        </div>
+
+				    </div>
+
+				</div>
+
+			</div>
+
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

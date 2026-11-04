@@ -1,0 +1,40 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <div class="admin-head">
+				            <h1>Products</h1>
+				            <a href="/admin/products/new" class="btn">New Product</a>
+				        </div>
+
+				        <!-- admin/products.js runs tablesorter.js against /api/admin/products/list -->
+				        <div class="table-tools">
+				            <input id="products-search" type="search" placeholder="Search name, sku, slug...">
+				            <select id="products-rows">
+				                <option value="10">10 rows</option>
+				                <option value="25" selected>25 rows</option>
+				                <option value="50">50 rows</option>
+				                <option value="100">100 rows</option>
+				            </select>
+				        </div>
+
+				        <table id="products-table" class="admin-table">
+				            <thead>
+				                <tr>
+				                    <th data-key="image"></th>
+				                    <th data-sort="name">Name</th>
+				                    <th data-sort="sku">SKU</th>
+				                    <th data-sort="category_name">Category</th>
+				                    <th data-sort="price" class="num">Price</th>
+				                    <th data-sort="stock" class="num">Stock</th>
+				                    <th data-sort="active">Active</th>
+				                    <th data-sort="updated_at">Updated</th>
+				                </tr>
+				            </thead>
+				            <tbody></tbody>
+				        </table>
+
+				        <div class="table-foot">
+				            <div id="products-info" class="table-info"></div>
+				            <ul id="products-pager" class="pager"></ul>
+				        </div>
+
+<?php include __DIR__ . '/include/foot.html'; ?>

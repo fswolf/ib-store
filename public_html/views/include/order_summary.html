@@ -1,0 +1,64 @@
+<?php
+	// one order's addresses, lines and totals. used by the payment page, the account order page and admin
+	// expects $order (OrdersModel with getItems() called)
+	$address = function($p) use ($order) {
+		$lines = array(
+			trim($order->{$p . 'first_name'} . ' ' . $order->{$p . 'last_name'}),
+			$order->{$p . 'company'},
+			$order->{$p . 'address_1'},
+			$order->{$p . 'address_2'},
+			trim($order->{$p . 'city'} . ', ' . $order->{$p . 'province'} . ' ' . $order->{$p . 'postal_code'}),
+			$order->{$p . 'country'},
+			$order->{$p . 'phone'},
+		);
+		return implode('<br>', array_map('htmlspecialchars', array_filter($lines)));
+	};
+?>
+<div class="payment-review">
+
+    <strong>Billing Address</strong><br>
+    <?= $address('bill_') ?>
+
+    <?php if ($order->has_physical): ?>
+    <hr>
+
+    <strong>Shipping Address</strong><br>
+    <?= $address('ship_') ?>
+    <?php endif; ?>
+
+    <?php if (!empty($order->notes)): ?>
+    <hr>
+
+    <strong>Order Notes</strong><br>
+    <?= nl2br(htmlspecialchars($order->notes)) ?>
+    <?php endif; ?>
+
+</div>
+
+<h3 class="order-lines-title">Items</h3>
+
+<table class="order-lines">
+    <thead>
+        <tr><th>Item</th><th>Qty</th><th class="num">Price</th><th class="num">Total</th></tr>
+    </thead>
+    <tbody>
+        <?php foreach ($order->items as $item): ?>
+        <tr>
+            <td>
+                <?= htmlspecialchars($item['name']) ?>
+                <?php if ($item['sku']): ?><small class="order-sku"><?= htmlspecialchars($item['sku']) ?></small><?php endif; ?>
+                <?php if ($item['digital']): ?>
+                    <?php if ($order->downloadsReady() && $item['download_url']): ?>
+                    <br><a class="download-link" href="<?= htmlspecialchars($item['download_url']) ?>" rel="noopener">Download</a>
+                    <?php else: ?>
+                    <br><small class="order-sku">Download available once paid</small>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </td>
+            <td><?= (int) $item['qty'] ?></td>
+            <td class="num">$<?= number_format((float) $item['price'], 2) ?></td>
+            <td class="num">$<?= number_format($item['price'] * $item['qty'], 2) ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>

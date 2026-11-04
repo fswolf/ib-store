@@ -1,0 +1,69 @@
+<?php include __DIR__ . '/include/head.html'; ?>
+
+				        <h1>Accounts</h1>
+
+				        <!-- admin/accounts.js runs tablesorter.js against /api/admin/accounts/list, a row click fills the form -->
+				        <div class="table-tools">
+				            <input id="accounts-search" type="search" placeholder="Search username or email...">
+				            <select id="accounts-rows">
+				                <option value="10">10 rows</option>
+				                <option value="25" selected>25 rows</option>
+				                <option value="50">50 rows</option>
+				                <option value="100">100 rows</option>
+				            </select>
+				        </div>
+
+				        <table id="accounts-table" class="admin-table">
+				            <thead>
+				                <tr>
+				                    <th data-sort="id" class="num">#</th>
+				                    <th data-sort="username">Username</th>
+				                    <th data-sort="email">Email</th>
+				                    <th data-sort="registered">Registered</th>
+				                    <th data-sort="is_admin">Admin</th>
+				                    <th data-sort="verified">Verified</th>
+				                    <th data-key="notes">Notes</th>
+				                    <th data-key="id"></th>
+				                </tr>
+				            </thead>
+				            <tbody></tbody>
+				        </table>
+
+				        <div class="table-foot">
+				            <div id="accounts-info" class="table-info"></div>
+				            <ul id="accounts-pager" class="pager"></ul>
+				        </div>
+
+				        <form id="account-form" class="admin-section" hidden>
+				            <h2>Edit Account <span id="account-form-title"></span></h2>
+				            <input type="hidden" name="id" value="">
+
+				            <div class="form-grid">
+				                <div class="form-group">
+				                    <label for="username">Username</label>
+				                    <input id="username" name="username" type="text" maxlength="32" required>
+				                </div>
+
+				                <div class="form-group">
+				                    <label for="email">Email</label>
+				                    <input id="email" name="email" type="email" maxlength="50" required>
+				                </div>
+
+				                <div class="form-group full-width">
+				                    <label for="notes">Notes <small>(staff only)</small></label>
+				                    <input id="notes" name="notes" type="text" maxlength="256">
+				                </div>
+
+				                <div class="form-group check-group">
+				                    <label><input name="is_admin" type="checkbox" value="1"> Admin</label>
+				                    <label><input name="verified" type="checkbox" value="1"> Verified</label>
+				                </div>
+				            </div>
+
+				            <div class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Account</button>
+				                <button type="button" id="account-cancel" class="btn-link">Cancel</button>
+				            </div>
+				        </form>
+
+<?php include __DIR__ . '/include/foot.html'; ?>
