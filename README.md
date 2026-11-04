@@ -1,8 +1,19 @@
 # iB Store
 
-A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching FlightJS front end, no Composer, no build step. Redis is part of the stack: the request rate limiter runs on it, so install Redis and the php redis extension for full functionality (without them it falls back to files in `cache/`). Clone it, point Apache at `public_html`, import the database and you have a store.
+A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching FlightJS front end on a plain LAMP stack plus Redis. No Composer, no bundler, no framework bloat. Clone it, point Apache at `public_html`, import the database and you have a store.
 
 ![the store front](docs/screenshots/store.png)
+
+## Fast
+
+No framework on the front end, no bundle to download, no hydration. Pages are server rendered PHP, the JS is a few small modules loaded on demand, and the class map is cached so PHP does no directory scanning per request. Measured on the home page with the demo products, nothing special on the server side:
+
+| | Requests | Transferred | Finished |
+|---|---|---|---|
+| Cold load | 17 | 156 kB | 135 ms |
+| Cached | 17 | 6 kB | 108 ms |
+
+The code itself is about 19 kB over the wire. The rest of the cold load is the product images (webp, about 30 kB each). Redis handles the rate limiter so that costs nothing per request either.
 
 ## What is in the box
 
