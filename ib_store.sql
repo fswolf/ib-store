@@ -260,9 +260,9 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image`, `sort_order`) VALUES
-(1, 1, 'assets/images/items/mouse.png', 1),
-(2, 2, 'assets/images/items/watch.png', 1),
-(3, 4, 'assets/images/items/keyboard.png', 1);
+(1, 1, 'assets/images/items/mouse.webp', 1),
+(2, 2, 'assets/images/items/watch.webp', 1),
+(3, 4, 'assets/images/items/keyboard.webp', 1);
 
 -- --------------------------------------------------------
 
