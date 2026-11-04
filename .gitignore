@@ -8,6 +8,10 @@ public_html/error.log
 # fetched by ./update-libs.sh, not kept in git
 public_html/assets/vendor/BTCPayServer/
 
+# my own push and deploy scripts, they have my server in them
+push.sh
+deploy.sh
+
 # local test server bits
 router.php
 php.log

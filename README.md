@@ -2,6 +2,8 @@
 
 A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching FlightJS front end, no Composer, no build step. Clone it, point Apache at `public_html`, import the database and you have a store.
 
+![the store front](docs/screenshots/store.png)
+
 ## What is in the box
 
 - **Catalogue** with categories, product images, stock, badges (new, featured, sale) and search
@@ -35,11 +37,11 @@ Everything after that is in [docs/README.md](docs/README.md): how the code hangs
 
 Checkout writes a `pending` order and sends the customer to `/cart/payment/<order>`, which shows a button for every gateway that is switched on. The button creates the invoice on the gateway's side and sends the customer there. When they pay, the gateway's webhook flips the order to `paid` and the emails go out. When they come back to the payment page the store also asks the gateway directly, so a lost webhook never strands an order. Card numbers never touch your server, Stripe and PayPal host their own pages, and Bitcoin goes straight to the wallet connected to your BTCPay Server.
 
-## Scripts
+## Admin
 
-- `push.sh` commits and pushes this folder to GitHub. It refuses to push a tracked `config.php` or a database dump with account rows in it.
-- `deploy.sh` rsyncs `public_html` to a server over one SSH connection, keeps the product images uploaded on the server, and fixes the folder permissions. Change `NUC` and `DEST` at the top for your box.
-- `update-libs.sh` refreshes the vendored libraries from their newest GitHub release and writes a `VERSION` file next to each.
+![the admin dashboard](docs/screenshots/admin.png)
+
+Orders with a status filter and private notes, products with image upload, categories, accounts, and the store settings that drive checkout. Cancelling a pending order puts the stock back.
 
 ## Layout
 
@@ -53,7 +55,7 @@ Checkout writes a `pending` order and sends the customer to `/cart/payment/<orde
       assets/vendor/    third party code, picked up by the same autoloader
       flight/           the Flight PHP framework
       config/           config.example.php, errors.php, security.php
-    docs/               the longer read
+    docs/               the longer read, and the screenshots
     ib_store.sql        the database
 
 ## Adding a payment gateway
