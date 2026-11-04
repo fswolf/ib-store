@@ -1,6 +1,6 @@
 # iB Store
 
-A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching FlightJS front end, no Composer, no build step. Clone it, point Apache at `public_html`, import the database and you have a store.
+A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching FlightJS front end, no Composer, no build step. Redis is part of the stack: the request rate limiter runs on it, so install Redis and the php redis extension for full functionality (without them it falls back to files in `cache/`). Clone it, point Apache at `public_html`, import the database and you have a store.
 
 ![the store front](docs/screenshots/store.png)
 
@@ -20,7 +20,7 @@ A small self hosted store front in plain PHP. Physical and digital products, car
 - PHP 8.1 or newer with `pdo_mysql`, `mbstring`, `curl`, `json` and `fileinfo`. Bitcoin also needs `bcmath`
 - MariaDB or MySQL
 - A working `mail()` on the server for the order emails (optional, the store runs without it)
-- Redis and the php redis extension for rate limiting (optional, falls back to files)
+- Redis on localhost and the php redis extension. The rate limiter (`REQUEST_LIMIT` per minute per ip in the config) runs on Redis and only falls back to files in `cache/req/` when the extension is missing, so install it for full functionality
 
 ## Install
 
