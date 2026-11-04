@@ -6,6 +6,8 @@ A small self hosted store front in plain PHP. Physical and digital products, car
 
 ## Fast
 
+All the structure of a modern framework, all the weight of a 2008 one. Routes, controllers, models, CSRF, argon2id, rate limiting, signed webhooks, atomic order state, in about 19 kB of code.
+
 PHP serves the page shell, FlightJS fills in the content through the json api, and that is the whole stack: no bundle, no build, no hydration pass. The JS is a handful of small ES modules the router loads for the page you are on, nothing else comes down. On the PHP side the class map is cached so there is no directory scanning per request, and the rate limiter sits in Redis. Measured on the home page with the demo products, nothing special on the server side:
 
 | | Requests | Transferred | Finished |
