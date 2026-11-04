@@ -15,16 +15,17 @@
 
     --border-color: #e2e8f0;
 
-    --accent: #334155;
-    --accent-hover: #1e293b;
+    /* the one colour that is not gray: buttons, prices, badges, focus rings. change it and the whole store follows */
+    --accent: #4f46e5;
+    --accent-hover: #4338ca;
     --button-text: #ffffff;
 
-    --focus-color: #3b82f6;
+    --focus-color: #4f46e5;
     --overlay-color: #0f172a;
 
     /* rgba tints, kept in sync with --accent / --overlay-color above */
     --shadow-color: 15, 23, 42;
-    --accent-glow: 51, 65, 85;
+    --accent-glow: 79, 70, 229;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,14 +41,14 @@
 
         --border-color: #34383a;
 
-        --accent: #293444;
-        --accent-hover: #37455c;
+        --accent: #4f46e5;
+        --accent-hover: #6366f1;
 
-        --focus-color: #5b7ba3;
+        --focus-color: #6366f1;
         --overlay-color: #000000;
 
         --shadow-color: 0, 0, 0;
-        --accent-glow: 41, 52, 68;
+        --accent-glow: 79, 70, 229;
     }
 }
 
@@ -58,7 +59,8 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    /* the system font, nothing to download */
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: var(--bg-page);
     color: var(--text-body);
     min-height: 100vh;
@@ -374,7 +376,7 @@ main {
 
 .price {
     font-weight: bold;
-    color: var(--text-secondary);
+    color: var(--accent);
 }
 
 /* BUTTON */
