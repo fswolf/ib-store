@@ -4,6 +4,8 @@ A small self hosted store front in plain PHP. Physical and digital products, car
 
 ![the store front](docs/screenshots/home.png)
 
+![the shop page](docs/screenshots/shop.png)
+
 ## Fast
 
 All the structure of a modern framework, all the weight of a 2008 one. Routes, controllers, models, CSRF, argon2id, rate limiting, signed webhooks, atomic order state, in about 19 kB of code.
