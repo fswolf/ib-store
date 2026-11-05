@@ -491,18 +491,22 @@ main {
 }
 
 /* IMAGE */
+/* every card image gets the same box whatever shape the upload was: a tall or square picture sits inside it
+   on the holder colour instead of stretching the card */
+.product-image,
 .product-image-holder {
     width: 100%;
-    height: 160px;
+    aspect-ratio: 16 / 9;
     background: var(--border-color);
     border-radius: 10px;
+    overflow: hidden;
 }
 
 .product-image img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 10px;
 }
 
 /* TEXT */
