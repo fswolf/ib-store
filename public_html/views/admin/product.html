@@ -37,7 +37,7 @@
 				                </div>
 
 				                <div class="form-group">
-				                    <label for="con">Condition</label>
+				                    <label for="con">Condition <small>(ignored for digital)</small></label>
 				                    <select id="con" name="con">
 				                        <option value="0"<?= (int) $product->con === 0 ? ' selected' : '' ?>>New</option>
 				                        <option value="1"<?= (int) $product->con === 1 ? ' selected' : '' ?>>Open Box</option>

@@ -207,6 +207,7 @@ class ProductsModel {
 		$this->slug = $slug;
 		$con = (int) ($data->con ?? 0);
 		$this->con = in_array($con, array(0, 1, 2)) ? $con : 0;
+		if (!empty($data->digital)) $this->con = 0; // a download is always new, the form disables the field too
 		$this->description = trim((string) ($data->description ?? '')) ?: null;
 		$this->price = number_format((float) $price, 2, '.', '');
 		$this->stock = max(0, (int) ($data->stock ?? 0));

@@ -63,7 +63,9 @@ export default class AdminProduct {
         const digital = document.getElementById('digital')?.checked;
         const group = document.getElementById('download-group');
         if (group) group.style.display = digital ? '' : 'none';
+        // a download has no stock and no condition
         this.form.elements.stock.disabled = !!digital;
+        this.form.elements.con.disabled = !!digital;
     }
 
     csrf() {

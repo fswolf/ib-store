@@ -59,9 +59,11 @@
 							    <?php if ($product->digital): ?> • Digital download<?php endif; ?>
 							</div>
 
+							<?php if (!$product->digital): ?>
 							<div class="product-condition <?= $con[0] ?>">
 							    <?= $con[1] ?>
 							</div>
+							<?php endif; ?>
 
 							<?php if (!empty($product->description)): ?>
 		                    <p><?= nl2br(htmlspecialchars($product->description)) ?></p>
