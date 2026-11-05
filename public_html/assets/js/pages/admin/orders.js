@@ -1,4 +1,5 @@
 import TableSorter from "../../tools/tablesorter.js";
+import ExportCSV from "../../tools/export_csv.js";
 
 // admin order list. the status select swaps the endpoint query and reloads
 export default class AdminOrders {
@@ -32,6 +33,14 @@ export default class AdminOrders {
             this.table.page = 1;
             this.table.load();
             history.replaceState(null, "", this.status.value ? `?status=${this.status.value}` : location.pathname);
+        });
+
+        // the export takes the same search and status the table is showing, all pages of it
+        this.export = new ExportCSV({
+            button: "orders-export",
+            endpoint: endpoint.replace(/\/list$/, '/export'),
+            data: () => ({ input: document.getElementById('orders-search')?.value ?? '', status: this.status?.value ?? '' }),
+            filename: () => `orders-${this.status?.value || 'all'}-${new Date().toISOString().slice(0, 10)}`,
         });
 
         document.getElementById(table)?.addEventListener('click', (e) => {

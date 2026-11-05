@@ -298,6 +298,7 @@ class OrdersModel {
 		return (int) $select->fetchColumn();
 	}
 
+	// $rows null = every matching order, for the csv export
 	public static function getPage($rows, $offset, $sort = 'created', $order = 'desc', $search = '', $status = '') {
 		$db = new DatabaseLibrary();
 
@@ -313,12 +314,13 @@ class OrdersModel {
 			FROM `orders` o
 			LEFT JOIN accounts a ON a.id = o.account_id
 			$where
-			ORDER BY $sort $order
-			LIMIT :rows OFFSET :offset");
+			ORDER BY $sort $order" . ($rows === null ? '' : ' LIMIT :rows OFFSET :offset'));
 
 		foreach ($params as $key => $value) $select->bindValue($key, $value, PDO::PARAM_STR);
-		$select->bindValue(':rows', (int) $rows, PDO::PARAM_INT);
-		$select->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+		if ($rows !== null) {
+			$select->bindValue(':rows', (int) $rows, PDO::PARAM_INT);
+			$select->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+		}
 		$select->execute();
 		$result = $select->fetchAll();
 

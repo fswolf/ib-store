@@ -172,6 +172,31 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
+            // POST {input, status}: every order the current search and status filter match, flat for a spreadsheet.
+            // export_csv.js turns the rows into the file in the browser
+            case 'export':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $search = trim((string) ($data->input ?? ''));
+                    $status = (string) ($data->status ?? '');
+                    $rows = array();
+                    foreach (OrdersModel::getPage(null, 0, 'created', 'desc', $search, $status) as $o) {
+                        $rows[] = array(
+                            'order' => $o->uuid, 'date' => $o->created, 'status' => $o->status, 'paid_at' => $o->paid_at,
+                            'customer' => $o->username, 'email' => $o->email, 'items' => (int) $o->item_count,
+                            'subtotal' => $o->subtotal, 'shipping' => $o->shipping, 'tax' => $o->tax, 'total' => $o->total, 'currency' => $o->currency,
+                            'payment_method' => $o->payment_method, 'payment_ref' => $o->payment_ref,
+                            'bill_name' => trim($o->bill_first_name . ' ' . $o->bill_last_name), 'bill_company' => $o->bill_company, 'bill_phone' => $o->bill_phone,
+                            'bill_address' => trim($o->bill_address_1 . ' ' . $o->bill_address_2), 'bill_city' => $o->bill_city, 'bill_province' => $o->bill_province, 'bill_postal_code' => $o->bill_postal_code, 'bill_country' => $o->bill_country,
+                            'ship_name' => trim($o->ship_first_name . ' ' . $o->ship_last_name), 'ship_company' => $o->ship_company, 'ship_phone' => $o->ship_phone,
+                            'ship_address' => trim($o->ship_address_1 . ' ' . $o->ship_address_2), 'ship_city' => $o->ship_city, 'ship_province' => $o->ship_province, 'ship_postal_code' => $o->ship_postal_code, 'ship_country' => $o->ship_country,
+                            'notes' => $o->notes, 'admin_notes' => $o->admin_notes,
+                        );
+                    }
+                    return ['rows' => $rows];
+                });
+                break;
+
             // POST {id, status, csrf_token}
             case 'status':
                 $this->respond(function() {
