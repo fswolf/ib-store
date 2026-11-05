@@ -174,25 +174,29 @@
 
 				        <section class="admin-section">
 				            <h2>Payments</h2>
-				            <p class="form-hint">
-				                <?php if (isset($gateways['btcpay'])): ?>
-				                Bitcoin through BTCPay Server at <?= htmlspecialchars(BTCPAY_URL) ?> is on. Webhook: <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/btcpay/webhook</code>
-				                <?php else: ?>
-				                Bitcoin is off. Fill in the BTCPAY_* settings in config/config.php to turn it on (docs/README.md has the steps).
-				                <?php endif; ?>
-				                <br>
-				                <?php if (isset($gateways['stripe'])): ?>
-				                Cards through Stripe Checkout are on. Webhook: <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/stripe/webhook</code>
-				                <?php else: ?>
-				                Cards are off. Fill in STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET in config/config.php to turn them on.
-				                <?php endif; ?>
-				                <br>
-				                <?php if (isset($gateways['paypal'])): ?>
-				                PayPal is on<?= PAYPAL_SANDBOX ? ' (sandbox)' : '' ?>. Webhook (optional): <code><?= (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) ?>/api/payment/paypal/webhook</code><?= PAYPAL_WEBHOOK_ID === '' ? ', not set up, the store captures when the customer comes back instead' : '' ?>
-				                <?php else: ?>
-				                PayPal is off. Fill in PAYPAL_CLIENT_ID and PAYPAL_SECRET in config/config.php to turn it on.
-				                <?php endif; ?>
-				            </p>
+				            <p class="form-hint">Keys live in config/config.php, docs/README.md has the steps for each. A gateway with its keys filled in shows up on the payment page by itself.</p>
+				            <?php
+				            	// one row per gateway in the registry. the words here are the only per gateway bit, the on / off comes from the library
+				            	$webhook = (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) . '/api/payment/';
+				            	$about = array(
+				            		'btcpay' => array('Bitcoin', 'BTCPay Server' . (BTCPAY_URL !== '' ? ' at ' . htmlspecialchars(BTCPAY_URL) : ''), 'BTCPAY_URL, BTCPAY_API_KEY, BTCPAY_STORE_ID and BTCPAY_WEBHOOK_SECRET', 'Webhook, add it in BTCPay with the same secret:'),
+				            		'stripe' => array('Cards', 'Stripe Checkout', 'STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET', 'Webhook, add it under Developers > Webhooks:'),
+				            		'paypal' => array('PayPal', 'PayPal Orders' . (PAYPAL_SANDBOX ? ', sandbox' : ', live'), 'PAYPAL_CLIENT_ID and PAYPAL_SECRET', PAYPAL_WEBHOOK_ID === '' ? 'Webhook is optional, the store captures when the customer comes back. To add one anyway, set PAYPAL_WEBHOOK_ID and point it at:' : 'Webhook:'),
+				            	);
+				            ?>
+				            <div class="gateway-list">
+				                <?php foreach (PaymentLibrary::all() as $name => $class): $on = isset($gateways[$name]); [$title, $via, $keys, $hook] = $about[$name] ?? array($class::LABEL, $class, '', 'Webhook:'); ?>
+				                <div class="gateway">
+				                    <strong><?= $title ?> <small>through <?= $via ?></small></strong>
+				                    <span class="order-status <?= $on ? 'complete' : '' ?>"><?= $on ? 'On' : 'Off' ?></span>
+				                    <?php if ($on): ?>
+				                    <p><?= $hook ?><br><code><?= $webhook . $name ?>/webhook</code></p>
+				                    <?php else: ?>
+				                    <p>Fill in <?= $keys ?> to turn it on.</p>
+				                    <?php endif; ?>
+				                </div>
+				                <?php endforeach; ?>
+				            </div>
 				        </section>
 
 <?php include __DIR__ . '/include/foot.html'; ?>
