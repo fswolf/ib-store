@@ -19,10 +19,11 @@
 		        	// condition and badge come from the db as small ints, see the products table comments
 		        	$conditions = array(0 => array('new', 'New'), 1 => array('open-box', 'Open Box'), 2 => array('used', 'Used'));
 		        	$con = $conditions[(int) $product->con] ?? $conditions[0];
-		        	$badges = array(1 => array('new', 'New'), 2 => array('sale', 'Sale'), 3 => array('disc', 'Discontinued'));
+		        	$badges = array(1 => array('new', 'New'), 2 => array('sale', 'Sale'), 3 => array('disc', 'Discontinued'), 4 => array('soon', 'Coming Soon'));
 		        	$badge = $badges[(int) $product->badge] ?? null;
 		        	$main = $images[0]->image ?? null;
-		        	$in_stock = $product->digital || $product->stock > 0;
+		        	$in_stock = $product->buyable();
+		        	$soon = (int) $product->badge === 4;
 		        ?>
 
 		        <div class="product-view" data-id="<?= (int) $product->id ?>">
@@ -82,7 +83,9 @@
 
 		                <h2>$<?= number_format((float) $product->price, 2) ?> <small><?= htmlspecialchars($currency ?? '') ?></small></h2>
 
-		                <?php if ($product->digital): ?>
+		                <?php if ($soon): ?>
+		                <div class="stock-status soon">Coming soon</div>
+		                <?php elseif ($product->digital): ?>
 		                <div class="stock-status">Instant download after payment</div>
 		                <?php elseif ($product->stock > 0): ?>
 		                <div class="stock-status">In Stock<?= $product->stock <= 5 ? ' (only ' . (int) $product->stock . ' left)' : '' ?></div>
@@ -90,13 +93,13 @@
 		                <div class="stock-status out">Out of Stock</div>
 		                <?php endif; ?>
 
-		                <?php if (!$product->digital): ?>
+		                <?php if (!$product->digital && !$soon): ?>
 		                <label for="qty">Quantity</label>
 
 		                <input type="number" id="qty" min="1" max="<?= max(1, (int) $product->stock) ?>" value="1">
 		                <?php endif; ?>
 
-		                <button class="add-cart-btn" data-id="<?= (int) $product->id ?>"<?= $in_stock ? '' : ' disabled' ?>>Add to Cart</button>
+		                <button class="add-cart-btn" data-id="<?= (int) $product->id ?>"<?= $in_stock ? '' : ' disabled' ?>><?= $soon ? 'Coming Soon' : 'Add to Cart' ?></button>
 		            </div>
 
 		        </div>

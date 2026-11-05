@@ -24,7 +24,7 @@ export default class ProductCard {
 
             <p class="price">$${Number(product.price).toFixed(2)}</p>
 
-            <button class="add-cart-btn" data-id="${Number(product.id)}"${this.inStock(product) ? "" : " disabled"}>${this.inStock(product) ? "Add to Cart" : "Out of Stock"}</button>
+            <button class="add-cart-btn" data-id="${Number(product.id)}"${this.buyable(product) ? "" : " disabled"}>${this.label(product)}</button>
         `;
 
         return card;
@@ -38,6 +38,8 @@ export default class ProductCard {
                 return `<span class="badge sale">Sale</span>`;
             case 3:
                 return `<span class="badge disc">Discontinued</span>`;
+            case 4:
+                return `<span class="badge soon">Coming Soon</span>`;
             default:
                 return "";
         }
@@ -55,8 +57,18 @@ export default class ProductCard {
         return `<div class="product-image-holder"></div>`;
     }
 
+    // same rule as ProductsModel::buyable(): in stock (digital always is) and not coming soon
     inStock(product) {
         return Number(product.digital) === 1 || Number(product.stock) > 0;
+    }
+
+    buyable(product) {
+        return Number(product.badge) !== 4 && this.inStock(product);
+    }
+
+    label(product) {
+        if (Number(product.badge) === 4) return "Coming Soon";
+        return this.inStock(product) ? "Add to Cart" : "Out of Stock";
     }
 
     // names come from the db, admin typed them, but innerHTML still wants them escaped

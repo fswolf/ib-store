@@ -109,6 +109,52 @@
 				            </div>
 				        </form>
 
+				        <section class="admin-section" id="hero-section">
+				            <h2>Home Page Banner</h2>
+				            <p class="form-hint">A wide picture across the top of the home page with your words over its left side. Wide and short works best, around 1600 by 500. No image, no banner.</p>
+				            <?php if ($info->hero_image): ?>
+				            <div id="hero-preview" class="hero-preview">
+				                <img src="/<?= $v('hero_image') ?>" alt="">
+				            </div>
+				            <?php endif; ?>
+				            <!-- multipart, admin/settings.js posts it to /api/admin/settings/hero -->
+				            <form id="hero-form" class="image-upload">
+				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+				                <input id="hero-file" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
+				                <button type="submit" class="btn"><?= $info->hero_image ? 'Replace Image' : 'Upload Image' ?></button>
+				                <?php if ($info->hero_image): ?><button type="button" id="hero-delete" class="btn-danger" data-csrf="<?= $csrf_token ?>">Remove Banner</button><?php endif; ?>
+				            </form>
+
+				            <!-- admin/settings.js posts this to /api/admin/settings/hero/save -->
+				            <form id="hero-text-form">
+				                <div class="form-grid">
+				                    <div class="form-group full-width">
+				                        <label for="hero_heading">Heading</label>
+				                        <input id="hero_heading" name="hero_heading" type="text" value="<?= $v('hero_heading') ?>" maxlength="150" placeholder="Big words over the picture">
+				                    </div>
+
+				                    <div class="form-group full-width">
+				                        <label for="hero_text">Line under it</label>
+				                        <input id="hero_text" name="hero_text" type="text" value="<?= $v('hero_text') ?>" maxlength="255">
+				                    </div>
+
+				                    <div class="form-group">
+				                        <label for="hero_button">Button Label <small>(blank = no button)</small></label>
+				                        <input id="hero_button" name="hero_button" type="text" value="<?= $v('hero_button') ?>" maxlength="50" placeholder="Shop Now">
+				                    </div>
+
+				                    <div class="form-group">
+				                        <label for="hero_link">Button Link</label>
+				                        <input id="hero_link" name="hero_link" type="text" value="<?= $v('hero_link') ?>" maxlength="255" placeholder="/items">
+				                    </div>
+				                </div>
+
+				                <div class="form-actions">
+				                    <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Banner</button>
+				                </div>
+				            </form>
+				        </section>
+
 				        <section class="admin-section">
 				            <h2>Mail</h2>
 				            <p class="form-hint">

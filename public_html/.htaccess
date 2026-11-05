@@ -22,6 +22,15 @@ RewriteRule ^(.*)$ https://%1/ [R=301,L]
 	Deny from all
 </FilesMatch>
 
+# Stylesheet and scripts: the browser keeps its copy but asks the server each time whether it changed.
+# Apache answers 304 (a few bytes) when it did not, so a deploy shows up on the next page load instead of
+# whenever the browser feels like it. Images keep the default caching.
+<IfModule mod_headers.c>
+	<FilesMatch "\.(css|js)$">
+		Header set Cache-Control "no-cache"
+	</FilesMatch>
+</IfModule>
+
 # Hide the contents of directories
 IndexIgnore *
 

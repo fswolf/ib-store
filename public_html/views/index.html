@@ -13,6 +13,19 @@
 		</header>
 
 		<main class="store-main">
+			<?php if ($hero): ?>
+			<!-- hero banner, set under Admin > Store Settings. the image fills the box (an img, not an inline style, the csp
+			     in config/security.php does not allow those), the words sit on a gradient over it -->
+			<section class="hero">
+				<img class="hero-image" src="/<?= htmlspecialchars($hero->hero_image) ?>" alt="">
+				<div class="hero-inner">
+					<?php if ($hero->hero_heading): ?><h1><?= htmlspecialchars($hero->hero_heading) ?></h1><?php endif; ?>
+					<?php if ($hero->hero_text): ?><p><?= htmlspecialchars($hero->hero_text) ?></p><?php endif; ?>
+					<?php if ($hero->hero_button && $hero->hero_link): ?><a class="btn hero-btn" href="<?= htmlspecialchars($hero->hero_link) ?>"><?= htmlspecialchars($hero->hero_button) ?></a><?php endif; ?>
+				</div>
+			</section>
+			<?php endif; ?>
+
 			<div class="container">
 			    <!-- Featured -->
 			    <section class="product-section">

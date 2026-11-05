@@ -24,6 +24,7 @@ class CartLibrary {
 	public function add($product_id, $qty = 1) {
 		$product = ProductsModel::getProduct($product_id);
 		if (!$product || !$product->active) throw new Exception('That item is not available');
+		if ((int) $product->badge === 4) throw new Exception($product->name . ' is coming soon, not for sale yet');
 
 		$qty = max(1, (int) $qty);
 		$have = $this->lines[$product->id] ?? 0;
@@ -75,14 +76,14 @@ class CartLibrary {
 	}
 
 	// lines with their product attached: [ {product: ProductsModel, qty: n, line_total: 0.00}, ... ]
-	// items that vanished or went inactive since they were added get dropped here
+	// items that vanished, went inactive or got tagged coming soon since they were added get dropped here
 	public function items() {
 		if ($this->products === null) $this->products = ProductsModel::getMany(array_keys($this->lines));
 
 		$out = array();
 		$changed = false;
 		foreach ($this->lines as $id => $qty) {
-			if (!isset($this->products[$id]) || !$this->products[$id]->active) {
+			if (!isset($this->products[$id]) || !$this->products[$id]->active || (int) $this->products[$id]->badge === 4) {
 				unset($this->lines[$id]);
 				$changed = true;
 				continue;

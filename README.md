@@ -2,7 +2,7 @@
 
 A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching [FlightJS](https://github.com/fswolf/flightjs) front end on a plain LAMP stack plus Redis. No Composer, no bundler, no framework bloat. Clone it, point Apache at `public_html`, import the database and you have a store.
 
-![the store front](docs/screenshots/store-front.png)
+![the store front](docs/screenshots/home.png)
 
 ## Fast
 
@@ -25,6 +25,7 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 - **Accounts** with argon2id passwords, password reset by email, saved billing and shipping addresses, and an order history
 - **Order emails** on checkout and on every status change (paid, shipped, complete, cancelled, refunded), through the server's own `mail()`
 - **Admin panel** for orders, products, categories, accounts and store settings, with a test email button
+- **Hero banner** on the home page, image plus heading, line and button, all set from the admin panel. Leave the image empty and it is not there
 - **Payments** behind one small interface, so each gateway is a single class. Switch any of them on by filling in its keys in the config, leave them empty and the option stays off the payment page
 
 ## Requirements
@@ -55,6 +56,12 @@ Checkout writes a `pending` order and sends the customer to `/cart/payment/<orde
 ![the admin dashboard](docs/screenshots/admin-dashboard.png)
 
 Orders with a status filter and private notes, products with image upload, categories, accounts, and the store settings that drive checkout. Cancelling a pending order puts the stock back.
+
+![products](docs/screenshots/admin-products.png)
+
+The home page banner is set from the same place: upload a picture, type the heading, line and button, save.
+
+![the banner settings](docs/screenshots/admin-banner.png)
 
 ## Layout
 

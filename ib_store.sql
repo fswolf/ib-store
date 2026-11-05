@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2026 at 06:39 PM
+-- Generation Time: Nov 05, 2026 at 07:52 AM
 -- Server version: 11.8.6-MariaDB-0+deb13u1 from Debian
 -- PHP Version: 8.4.27
 
@@ -235,7 +235,7 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category_id`, `sku`, `name`, `slug`, `con`, `description`, `price`, `stock`, `digital`, `download_url`, `active`, `newest`, `featured`, `badge`, `created_at`, `updated_at`) VALUES
-(1, 1, '200-222', 'Gaming Mouse', 'gaming-mouse', 2, NULL, 20.00, 100, 0, NULL, 1, 0, 1, 1, '2026-06-28 10:09:21', '2026-06-29 05:44:44'),
+(1, 1, '200-222', 'Gaming Mouse', 'gaming-mouse', 2, NULL, 20.00, 98, 0, NULL, 1, 0, 1, 1, '2026-06-28 10:09:21', '2026-11-05 05:15:20'),
 (2, 1, '222-333', 'Smart Watch', 'smart-watch', 1, NULL, 22.00, 1000, 0, NULL, 1, 0, 1, 0, '2026-06-29 04:27:41', '2026-06-29 05:44:32'),
 (3, 1, '333-444', 'Wireless Headphones', 'wireless-headphones', 0, NULL, 0.00, 999, 0, NULL, 1, 0, 1, 0, '2026-06-29 04:41:02', '2026-07-02 05:11:14'),
 (4, 1, '555-666', 'RGB Keyboard', 'rgn-keyboard', 0, NULL, 32.00, 999, 0, NULL, 1, 1, 0, 0, '2026-06-29 05:37:21', '2026-06-29 05:37:21'),
@@ -289,6 +289,11 @@ CREATE TABLE `store_info` (
   `free_shipping_over` decimal(10,2) DEFAULT NULL COMMENT 'subtotal that waives shipping, null = never',
   `timezone` varchar(100) DEFAULT 'UTC',
   `logo` varchar(255) DEFAULT NULL,
+  `hero_image` varchar(255) DEFAULT NULL COMMENT 'empty = no hero on the home page',
+  `hero_heading` varchar(150) DEFAULT NULL,
+  `hero_text` varchar(255) DEFAULT NULL,
+  `hero_button` varchar(50) DEFAULT NULL COMMENT 'button label, empty = no button',
+  `hero_link` varchar(255) DEFAULT NULL COMMENT 'where the button goes, /items for the shop',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -297,8 +302,8 @@ CREATE TABLE `store_info` (
 -- Dumping data for table `store_info`
 --
 
-INSERT INTO `store_info` (`id`, `store_name`, `company_name`, `email`, `phone`, `address_line1`, `address_line2`, `city`, `state_province`, `postal_code`, `country`, `website`, `currency`, `tax_rate`, `shipping_flat`, `free_shipping_over`, `timezone`, `logo`, `created_at`, `updated_at`) VALUES
-(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, '2026-06-22 23:50:34', '2026-07-10 19:58:11');
+INSERT INTO `store_info` (`id`, `store_name`, `company_name`, `email`, `phone`, `address_line1`, `address_line2`, `city`, `state_province`, `postal_code`, `country`, `website`, `currency`, `tax_rate`, `shipping_flat`, `free_shipping_over`, `timezone`, `logo`, `hero_image`, `hero_heading`, `hero_text`, `hero_button`, `hero_link`, `created_at`, `updated_at`) VALUES
+(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-22 23:50:34', '2026-11-05 05:23:16');
 
 --
 -- Indexes for dumped tables
@@ -402,13 +407,13 @@ ALTER TABLE `accounts`
 -- AUTO_INCREMENT for table `account_billing`
 --
 ALTER TABLE `account_billing`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `account_shipping`
 --
 ALTER TABLE `account_shipping`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -420,13 +425,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `products`

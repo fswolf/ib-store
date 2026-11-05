@@ -14,7 +14,7 @@ class AdminApiController extends ApiController {
             case 'categories': $this->categories($action); break;
             case 'orders':     $this->orders($action); break;
             case 'accounts':   $this->accounts($action); break;
-            case 'settings':   $this->settings($action); break;
+            case 'settings':   $this->settings($action, $parts[2] ?? ''); break;
             default: Flight::halt(404);
         }
     }
@@ -244,8 +244,43 @@ class AdminApiController extends ApiController {
     }
 
     // -- Settings -- //
-    private function settings($action) {
+    private function settings($action, $sub = '') {
         switch ($action) {
+            // the home page banner. multipart POST {image, csrf_token} replaces the image, json POST {csrf_token} to
+            // hero/delete takes it off, json POST {hero_heading, hero_text, hero_button, hero_link, csrf_token} to
+            // hero/save sets the words. its own section in the panel, so its own saves
+            case 'hero':
+                if ($sub === 'save') {
+                    $this->respond(function() {
+                        $data = $this->input();
+                        $this->checkCsrf($data);
+                        (new StoreInfoModel())->fillHero($data)->updateHero();
+                        return ['message' => 'Banner saved.'];
+                    });
+                    break;
+                }
+                if ($sub === 'delete') {
+                    $this->respond(function() {
+                        $data = $this->input();
+                        $this->checkCsrf($data);
+                        $info = StoreInfoModel::getHero();
+                        if ($info) $this->unlinkImage($info->hero_image);
+                        StoreInfoModel::setHeroImage(null);
+                        return ['message' => 'Banner removed.'];
+                    });
+                    break;
+                }
+
+                $this->respond(function() {
+                    $this->checkCsrf((object) $_POST);
+                    $old = StoreInfoModel::getHero();
+                    $path = $this->saveUpload($_FILES['image'] ?? null, 'hero');
+                    StoreInfoModel::setHeroImage($path);
+                    if ($old) $this->unlinkImage($old->hero_image);
+                    return ['message' => 'Banner image saved.', 'image' => $path];
+                });
+                break;
+
             // POST {csrf_token}: a test mail to the signed in admin, so the server's mail can be checked from the panel
             case 'testmail':
                 $this->respond(function() {

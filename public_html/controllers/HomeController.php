@@ -2,6 +2,7 @@
 class HomeController extends BaseController {
     public function home() {
         $this->setGlobals();
+        $this->view->set('hero', StoreInfoModel::getHero()); // false = no banner
 
         $this->view->template = 'index.html';
         $this->view->render();

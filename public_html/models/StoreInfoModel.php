@@ -19,6 +19,11 @@ class StoreInfoModel {
 	public $free_shipping_over;
 	public $timezone;
 	public $logo;
+	public $hero_image;
+	public $hero_heading;
+	public $hero_text;
+	public $hero_button;
+	public $hero_link;
 	public $created_at;
 	public $updated_at;
 
@@ -55,6 +60,17 @@ class StoreInfoModel {
 		$record = $select->fetch();
 
 		if($record) return new StoreInfoModel($record);
+		return false;
+	}
+
+	// the home page banner. false when no image is set, so the view can skip the whole section
+	public static function getHero() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT hero_image, hero_heading, hero_text, hero_button, hero_link FROM `store_info` LIMIT 1');
+		$select->execute();
+		$record = $select->fetch();
+
+		if($record && $record['hero_image']) return new StoreInfoModel($record);
 		return false;
 	}
 
@@ -133,5 +149,35 @@ class StoreInfoModel {
 
 		$stmt = $db->pdo->prepare($sql);
 		return $stmt->execute($data);
+	}
+
+	// -- Home page banner -- //
+	// the banner has its own form in the admin panel, so its words are filled and saved apart from the settings above
+	const HERO_FIELDS = array('hero_heading' => 150, 'hero_text' => 255, 'hero_button' => 50, 'hero_link' => 255);
+
+	public function fillHero($data) {
+		foreach (self::HERO_FIELDS as $field => $max) {
+			$value = trim((string) ($data->{$field} ?? ''));
+			if (mb_strlen($value) > $max) throw new Exception(ucfirst(str_replace('hero_', '', $field)) . ' is too long');
+			$this->{$field} = $value === '' ? null : $value;
+		}
+		// the button goes in an href, so only a path on this site or a full http(s) url
+		if ($this->hero_link !== null && !preg_match('#^(/|https?://)#i', $this->hero_link)) throw new Exception('Button link must start with / or http');
+		return $this;
+	}
+
+	public function updateHero() {
+		$db = new DatabaseLibrary();
+		$update = $db->pdo->prepare('UPDATE `store_info` SET hero_heading = :hero_heading, hero_text = :hero_text, hero_button = :hero_button, hero_link = :hero_link LIMIT 1');
+		foreach (self::HERO_FIELDS as $field => $max) $update->bindValue(":$field", $this->{$field}, $this->{$field} === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+		return $update->execute();
+	}
+
+	// the banner image is set by the uploader, so it has its own write. null clears it
+	public static function setHeroImage($path) {
+		$db = new DatabaseLibrary();
+		$update = $db->pdo->prepare('UPDATE `store_info` SET hero_image = :path LIMIT 1');
+		$update->bindValue(':path', $path, $path === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+		return $update->execute();
 	}
 }

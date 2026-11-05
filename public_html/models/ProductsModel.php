@@ -216,8 +216,14 @@ class ProductsModel {
 		$this->newest = !empty($data->newest) ? 1 : 0;
 		$this->featured = !empty($data->featured) ? 1 : 0;
 		$badge = (int) ($data->badge ?? 0);
-		$this->badge = in_array($badge, array(0, 1, 2, 3)) ? $badge : 0;
+		$this->badge = in_array($badge, array(0, 1, 2, 3, 4)) ? $badge : 0;
 		return $this;
+	}
+
+	// can it go in a cart: in stock (digital always is) and not tagged coming soon.
+	// the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
+	public function buyable() {
+		return (int) $this->badge !== 4 && ($this->digital || $this->stock > 0);
 	}
 
 	// insert when there is no id yet, update otherwise. slug and sku are unique in the table so the
