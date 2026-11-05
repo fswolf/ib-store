@@ -446,6 +446,15 @@ main {
     margin-bottom: 1.5rem;
 }
 
+#favicon-section .image-upload {
+    margin-top: 1rem;
+}
+
+/* the file picker claims a wide box by default and leaves a hole before the button */
+.image-upload input[type="file"] {
+    max-width: 15rem;
+}
+
 #favicon-section .image-upload .btn,
 #hero-section .image-upload .btn {
     margin-top: 0; /* .admin-section .btn adds a top margin for buttons under text, this row is centred by flex instead */
