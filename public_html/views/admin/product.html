@@ -96,7 +96,7 @@
 				        <?php if ($product->id): ?>
 				        <section class="admin-section">
 				            <h2>Images</h2>
-				            <p class="form-hint">The first image is the one on the cards. jpg, png, webp or gif, up to <?= round(ITEM_IMAGE_MAX / 1024 / 1024) ?> MB.</p>
+				            <p class="form-hint">The first image is the one on the cards. Cards are 16 by 9, so a wide picture fills the box best, around 1200 by 675; a square or tall one shows with space either side. jpg, png, webp or gif, up to <?= round(ITEM_IMAGE_MAX / 1024 / 1024) ?> MB.</p>
 
 				            <div id="image-list" class="image-list">
 				                <?php foreach ($images as $image): ?>

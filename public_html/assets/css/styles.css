@@ -2838,7 +2838,7 @@ a.stat-card:hover {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0 1.5rem;
 }
 
 .image-card {
@@ -2851,9 +2851,9 @@ a.stat-card:hover {
 .image-card img {
     display: block;
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 16 / 9; /* same box as the store cards, so the thumbnail shows what the customer gets */
     object-fit: contain;
-    background: #fff;
+    background: var(--bg-surface);
 }
 
 .image-actions {
