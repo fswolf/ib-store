@@ -37,9 +37,9 @@ class MailLibrary {
 
 		return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' . htmlspecialchars($heading) . '</title></head>
 		<body style="margin:0;padding:0;background:#1a1a1a;font-family:Segoe UI,Arial,sans-serif;color:#f8f9fa;">
-			<table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#2b2b2b,#3a2f4a);padding:40px 15px;">
+			<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#2b2b2b;background:linear-gradient(135deg,#2b2b2b,#3a2f4a);color:#f8f9fa;padding:40px 15px;">
 				<tr><td align="center">
-					<table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:rgba(50,50,50,0.35);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px 26px;box-shadow:0 10px 35px rgba(0,0,0,0.5);">
+					<table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:rgba(50,50,50,0.35);color:#f8f9fa;font-family:Segoe UI,Arial,sans-serif;border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px 26px;box-shadow:0 10px 35px rgba(0,0,0,0.5);">
 						<tr><td style="text-align:center;font-size:20px;font-weight:600;padding-bottom:6px;">' . htmlspecialchars($title) . '</td></tr>
 						<tr><td style="text-align:center;font-size:13px;opacity:0.65;padding-bottom:18px;">' . htmlspecialchars($heading) . '</td></tr>
 						<tr><td style="font-size:14px;line-height:1.6;padding-bottom:18px;">' . $lines . '</td></tr>
