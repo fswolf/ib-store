@@ -2686,6 +2686,18 @@ a.stat-card:hover {
     color: var(--text-body);
 }
 
+/* the same focus ring as every other field, instead of the browser's blue one. covers the table search and
+   filter boxes and anything in an admin section that is not inside a .form-group (notes, uploads) */
+.table-tools input:focus,
+.table-tools select:focus,
+.admin-section input:focus,
+.admin-section select:focus,
+.admin-section textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-glow), .15);
+}
+
 .table-tools input {
     flex: 1;
 }
