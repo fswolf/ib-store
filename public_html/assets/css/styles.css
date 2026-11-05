@@ -2573,6 +2573,11 @@ footer p {
 }
 
 .account-section,
+/* a form straight under a table (categories, accounts) gets the same gap the pager gives the others */
+.admin-table + .admin-section {
+    margin-top: 1.5rem;
+}
+
 .admin-section {
     margin-bottom: 1.5rem;
     padding: 1.5rem;
