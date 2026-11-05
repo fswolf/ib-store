@@ -21,7 +21,7 @@ The class map cache (`cache/class_map.json`) rebuilds itself every 24 hours or w
 - Models are one class per table with static finders, `fill($data)` for validating posted data and `save()`. `AddressesModel` covers both `account_billing` and `account_shipping` (same columns now), the `$type` picks the table.
 - Libraries: `CartLibrary` (session cart, totals), `PaymentLibrary` and the three gateways under it, `OrderMailLibrary`, `MailLibrary` (php mail() plus the html card the emails use), `SessionLibrary`, `DatabaseLibrary`, `ViewLibrary`, `NonceLibrary` (not used by anything yet).
 - Views are plain php + html in `views/`. Shared bits live in `views/include/` (menu, footer, address fields, order summary) and `views/admin/include/` (admin shell).
-- FlightJS: `assets/js/routes.js` maps the url to a page class in `assets/js/pages/` plus its config. `global_ui.js` handles the menu, the search box and every Add to Cart button on the site. `tools/api_form.js` is `form_handler.js` with the usual endings filled in (toast the message, follow a redirect). `tools/tablesorter.js` drives the admin tables against `/api/admin/*/list`.
+- FlightJS: `assets/js/routes.js` maps the url to a page class in `assets/js/pages/` plus its config. `global_ui.js` handles the menu, the search box and every Add to Cart button on the site. `tools/api_form.js` is `form_handler.js` with the usual endings filled in (toast the message, follow a redirect). `tools/file_upload.js` is the same idea for a form with a file in it (multipart): the product images, the banner and the tab icon all go through it. `tools/tablesorter.js` drives the admin tables against `/api/admin/*/list`.
 
 ## Flow of a sale
 

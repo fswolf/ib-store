@@ -1,5 +1,6 @@
 import ApiForm from "../../tools/api_form.js";
 import ApiClient from "../../tools/api_client.js";
+import FileUpload from "../../tools/file_upload.js";
 
 export default class AdminSettings {
     api = new ApiClient();
@@ -26,48 +27,34 @@ export default class AdminSettings {
             this.heroText = new ApiForm({ form: "hero-text-form", endpoint: `${this.endpoint}/hero/save` });
         }
 
-        // the image uploads (tab icon, banner): multipart, so not through ApiForm (the browser sets the boundary).
-        // the form's data-action names the api action, its remove button posts to <action>/delete. both reload after
+        // the image uploads (tab icon, banner) go through file_upload.js. the form's data-action names the api action,
+        // its remove button posts to <action>/delete. both reload after so the preview and buttons follow the server
         document.querySelectorAll('form.image-upload[data-action]').forEach((form) => {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.upload(form, form.dataset.action);
-            });
+            new FileUpload({ form, endpoint: `${this.endpoint}/${form.dataset.action}`, onDone: () => this.reload() });
         });
         document.querySelectorAll('.image-remove').forEach((button) => {
             button.addEventListener('click', async () => {
                 if (!confirm(button.dataset.ask)) return;
                 const result = await this.api.post(`${this.endpoint}/${button.dataset.action}/delete`, { csrf_token: button.dataset.csrf });
-                this.done(result.data ?? result.raw, result);
+                this.handle(result, () => this.reload());
             });
         });
     }
 
-    async upload(form, action) {
-        if (!form.elements.image.files[0]) return;
-        const button = form.querySelector('button[type="submit"]');
-        button.disabled = true;
-
-        let data;
-        try {
-            const res = await fetch(`${this.endpoint}/${action}`, { method: "POST", body: new FormData(form) });
-            data = await res.json();
-        } catch (err) {
-            data = { success: false, error: "Network error" };
-        }
-
-        button.disabled = false;
-        this.done(data);
-    }
-
-    // an image answer: toast it, reload on success so the preview and buttons follow the server
-    done(data, result = null) {
-        if (!data?.success) {
+    // an ApiClient answer the same way product.js reads one: toast, bounce to signin, onDone on success
+    handle(result, onDone) {
+        const data = result.data ?? result.raw; // api_client puts a non 2xx body in raw
+        if (!result.success || !data?.success) {
             if (data?.signin) { window.location.href = "/signin"; return; }
-            window.notify.error(data?.error || result?.error || "Request failed.");
+            window.notify.error(data?.error || result.error || "Request failed.");
             return;
         }
-        window.notify.success(data.message);
+        if (data.message) window.notify.success(data.message);
+        onDone?.(data);
+    }
+
+    // after the toast has had a moment
+    reload() {
         setTimeout(() => window.location.reload(), 600);
     }
 }

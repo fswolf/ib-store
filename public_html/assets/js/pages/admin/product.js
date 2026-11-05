@@ -1,7 +1,8 @@
 import ApiForm from "../../tools/api_form.js";
 import ApiClient from "../../tools/api_client.js";
+import FileUpload from "../../tools/file_upload.js";
 
-// product edit form plus the image uploader (multipart, so not through FormHandler)
+// product edit form plus the image uploader (file_upload.js, multipart)
 export default class AdminProduct {
     api = new ApiClient();
 
@@ -42,9 +43,11 @@ export default class AdminProduct {
             this.handle(result, (data) => window.location.href = data.redirect);
         });
 
-        document.getElementById('image-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.upload(e.target);
+        // each upload adds a card to the list, no reload
+        this.uploader = new FileUpload({
+            form: "image-form",
+            endpoint: `${this.endpoint}/image`,
+            onDone: (data) => document.getElementById('image-list').append(this.card(data.image)),
         });
 
         document.getElementById('image-list')?.addEventListener('click', (e) => {
@@ -65,29 +68,6 @@ export default class AdminProduct {
 
     csrf() {
         return this.form.querySelector('button[type="submit"]').dataset.csrf;
-    }
-
-    // ApiClient sets Content-Type json, a file upload needs the browser to set the multipart boundary itself
-    async upload(form) {
-        const file = form.elements.image.files[0];
-        if (!file) return;
-
-        const button = form.querySelector('button');
-        button.disabled = true;
-
-        let result;
-        try {
-            const res = await fetch(`${this.endpoint}/image`, { method: "POST", body: new FormData(form) });
-            result = { success: res.ok, data: await res.json() };
-        } catch (err) {
-            result = { success: false, error: "Network error" };
-        }
-
-        button.disabled = false;
-        this.handle(result, (data) => {
-            form.reset();
-            document.getElementById('image-list').append(this.card(data.image));
-        });
     }
 
     async image(action, card) {
