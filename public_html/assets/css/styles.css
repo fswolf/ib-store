@@ -431,11 +431,22 @@ main {
     word-break: break-all;
 }
 
+/* admin > settings: the tab icon preview sits in its upload row */
+.favicon-preview {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--bg-surface);
+    padding: 2px;
+}
+
 /* the admin section for it: picture, upload row, then the words */
 #hero-section .image-upload {
     margin-bottom: 1.5rem;
 }
 
+#favicon-section .image-upload .btn,
 #hero-section .image-upload .btn {
     margin-top: 0; /* .admin-section .btn adds a top margin for buttons under text, this row is centred by flex instead */
 }

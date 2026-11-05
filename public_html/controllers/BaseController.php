@@ -30,6 +30,7 @@ class BaseController {
 	    $this->view->set('store_name', $this->store_name);
 	    $this->view->set('company_name', $this->company_name);
 	    $this->view->set('currency', $this->currency);
+	    $this->view->set('favicon', upload_url($info->favicon ?: 'assets/images/bored.png')); // the tab icon, uploaded in store settings
 	    $this->view->set('categories', $this->categories);
 	    $this->view->set('cart_count', (new CartLibrary())->count()); // the menu badge
 	    if($auth) $this->view->set('logged', $this->resumeLogin());

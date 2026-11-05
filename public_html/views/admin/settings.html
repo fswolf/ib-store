@@ -109,20 +109,33 @@
 				            </div>
 				        </form>
 
+				        <section class="admin-section" id="favicon-section">
+				            <h2>Tab Icon</h2>
+				            <p class="form-hint">The little picture in the browser tab. A square png, ico or webp, 64 by 64 is plenty. Without one the store uses the bored face.</p>
+				            <!-- multipart, admin/settings.js posts it to /api/admin/settings/favicon -->
+				            <form id="favicon-form" class="image-upload" data-action="favicon">
+				                <img class="favicon-preview" src="<?= $favicon ?>" alt="">
+				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+				                <input id="favicon-file" name="image" type="file" accept="image/png,image/x-icon,image/vnd.microsoft.icon,image/webp,image/jpeg,image/gif" required>
+				                <button type="submit" class="btn"><?= $info->favicon ? 'Replace Icon' : 'Upload Icon' ?></button>
+				                <?php if ($info->favicon): ?><button type="button" class="btn-danger image-remove" data-action="favicon" data-ask="Back to the default icon?" data-csrf="<?= $csrf_token ?>">Use Default</button><?php endif; ?>
+				            </form>
+				        </section>
+
 				        <section class="admin-section" id="hero-section">
 				            <h2>Home Page Banner</h2>
 				            <p class="form-hint">A wide picture across the top of the home page with your words over its left side. Wide and short works best, around 1600 by 500. No image, no banner.</p>
 				            <?php if ($info->hero_image): ?>
 				            <div id="hero-preview" class="hero-preview">
-				                <img src="/<?= $v('hero_image') ?>" alt="">
+				                <img src="<?= htmlspecialchars(upload_url($info->hero_image)) ?>" alt="">
 				            </div>
 				            <?php endif; ?>
 				            <!-- multipart, admin/settings.js posts it to /api/admin/settings/hero -->
-				            <form id="hero-form" class="image-upload">
+				            <form id="hero-form" class="image-upload" data-action="hero">
 				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 				                <input id="hero-file" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
 				                <button type="submit" class="btn"><?= $info->hero_image ? 'Replace Image' : 'Upload Image' ?></button>
-				                <?php if ($info->hero_image): ?><button type="button" id="hero-delete" class="btn-danger" data-csrf="<?= $csrf_token ?>">Remove Banner</button><?php endif; ?>
+				                <?php if ($info->hero_image): ?><button type="button" class="btn-danger image-remove" data-action="hero" data-ask="Remove the banner image? The words stay." data-csrf="<?= $csrf_token ?>">Remove Banner</button><?php endif; ?>
 				            </form>
 
 				            <!-- admin/settings.js posts this to /api/admin/settings/hero/save -->

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 05, 2026 at 07:52 AM
+-- Generation Time: Nov 05, 2026 at 09:22 AM
 -- Server version: 11.8.6-MariaDB-0+deb13u1 from Debian
 -- PHP Version: 8.4.27
 
@@ -262,7 +262,10 @@ CREATE TABLE `product_images` (
 INSERT INTO `product_images` (`id`, `product_id`, `image`, `sort_order`) VALUES
 (1, 1, 'assets/images/items/mouse.webp', 1),
 (2, 2, 'assets/images/items/watch.webp', 1),
-(3, 4, 'assets/images/items/keyboard.webp', 1);
+(3, 4, 'assets/images/items/keyboard.webp', 1),
+(4, 3, 'assets/images/items/wireless-headphones-1.png', 1),
+(5, 6, 'assets/images/items/desk-lamp-1.png', 1),
+(6, 5, 'assets/images/items/usb-hub-1.png', 1);
 
 -- --------------------------------------------------------
 
@@ -289,6 +292,7 @@ CREATE TABLE `store_info` (
   `free_shipping_over` decimal(10,2) DEFAULT NULL COMMENT 'subtotal that waives shipping, null = never',
   `timezone` varchar(100) DEFAULT 'UTC',
   `logo` varchar(255) DEFAULT NULL,
+  `favicon` varchar(255) DEFAULT NULL COMMENT 'tab icon, empty = the default bored face',
   `hero_image` varchar(255) DEFAULT NULL COMMENT 'empty = no hero on the home page',
   `hero_heading` varchar(150) DEFAULT NULL,
   `hero_text` varchar(255) DEFAULT NULL,
@@ -302,8 +306,8 @@ CREATE TABLE `store_info` (
 -- Dumping data for table `store_info`
 --
 
-INSERT INTO `store_info` (`id`, `store_name`, `company_name`, `email`, `phone`, `address_line1`, `address_line2`, `city`, `state_province`, `postal_code`, `country`, `website`, `currency`, `tax_rate`, `shipping_flat`, `free_shipping_over`, `timezone`, `logo`, `hero_image`, `hero_heading`, `hero_text`, `hero_button`, `hero_link`, `created_at`, `updated_at`) VALUES
-(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-22 23:50:34', '2026-11-05 05:23:16');
+INSERT INTO `store_info` (`id`, `store_name`, `company_name`, `email`, `phone`, `address_line1`, `address_line2`, `city`, `state_province`, `postal_code`, `country`, `website`, `currency`, `tax_rate`, `shipping_flat`, `free_shipping_over`, `timezone`, `logo`, `favicon`, `hero_image`, `hero_heading`, `hero_text`, `hero_button`, `hero_link`, `created_at`, `updated_at`) VALUES
+(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-06-22 23:50:34', '2026-11-05 08:37:17');
 
 --
 -- Indexes for dumped tables
@@ -443,7 +447,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `store_info`

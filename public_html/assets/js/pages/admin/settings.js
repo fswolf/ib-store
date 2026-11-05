@@ -21,30 +21,36 @@ export default class AdminSettings {
             this.testmail = new ApiForm({ form: "testmail-form", endpoint: `${this.endpoint}/testmail` });
         }
 
-        // the home page banner: the words are a normal form, the image upload is multipart (the browser sets the
-        // boundary, so not through ApiForm), remove is a plain post. image changes reload so the preview follows the server
+        // the banner words are a normal form
         if (document.getElementById('hero-text-form')) {
             this.heroText = new ApiForm({ form: "hero-text-form", endpoint: `${this.endpoint}/hero/save` });
         }
-        document.getElementById('hero-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.upload(e.target);
+
+        // the image uploads (tab icon, banner): multipart, so not through ApiForm (the browser sets the boundary).
+        // the form's data-action names the api action, its remove button posts to <action>/delete. both reload after
+        document.querySelectorAll('form.image-upload[data-action]').forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.upload(form, form.dataset.action);
+            });
         });
-        document.getElementById('hero-delete')?.addEventListener('click', async (e) => {
-            if (!confirm("Remove the banner image? The words stay.")) return;
-            const result = await this.api.post(`${this.endpoint}/hero/delete`, { csrf_token: e.target.dataset.csrf });
-            this.done(result.data ?? result.raw, result);
+        document.querySelectorAll('.image-remove').forEach((button) => {
+            button.addEventListener('click', async () => {
+                if (!confirm(button.dataset.ask)) return;
+                const result = await this.api.post(`${this.endpoint}/${button.dataset.action}/delete`, { csrf_token: button.dataset.csrf });
+                this.done(result.data ?? result.raw, result);
+            });
         });
     }
 
-    async upload(form) {
+    async upload(form, action) {
         if (!form.elements.image.files[0]) return;
-        const button = form.querySelector('button');
+        const button = form.querySelector('button[type="submit"]');
         button.disabled = true;
 
         let data;
         try {
-            const res = await fetch(`${this.endpoint}/hero`, { method: "POST", body: new FormData(form) });
+            const res = await fetch(`${this.endpoint}/${action}`, { method: "POST", body: new FormData(form) });
             data = await res.json();
         } catch (err) {
             data = { success: false, error: "Network error" };

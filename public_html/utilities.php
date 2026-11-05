@@ -63,6 +63,13 @@ function base64encode($string) {
 }
 
 // are we on https, counting a proxy in front (the nuc terminates ssl before apache sees it)
+// a site relative url for an uploaded file with its change time on the end, so a replaced tab icon or banner
+// shows up instead of the browser's cached copy of the old one (same file name, new picture)
+function upload_url($path) {
+	$file = $_SERVER['DOCUMENT_ROOT'] . '/' . $path;
+	return '/' . $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+}
+
 function is_https() {
 	if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') return true;
 	return strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';

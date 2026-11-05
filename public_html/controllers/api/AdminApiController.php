@@ -107,9 +107,9 @@ class AdminApiController extends ApiController {
         if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Upload failed (code ' . $file['error'] . ')');
         if ($file['size'] > ITEM_IMAGE_MAX) throw new Exception('Image is bigger than ' . round(ITEM_IMAGE_MAX / 1024 / 1024) . ' MB');
 
-        $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+        $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/x-icon' => 'ico', 'image/vnd.microsoft.icon' => 'ico'];
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-        if (!isset($types[$mime])) throw new Exception('Only jpg, png, webp or gif images');
+        if (!isset($types[$mime])) throw new Exception('Only jpg, png, webp, gif or ico images');
 
         $dir = $_SERVER['DOCUMENT_ROOT'] . '/' . ITEM_IMAGE_DIR;
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) throw new Exception('Cannot create the image folder');
@@ -293,6 +293,30 @@ class AdminApiController extends ApiController {
                     $mail->send($this->user->email, "{$info->store_name} test email",
                         MailLibrary::card($info->store_name, 'Test email', 'If you are reading this, outgoing mail from ' . htmlspecialchars($_SERVER['HTTP_HOST'] ?? '') . ' works.<br>Sent ' . date('M j, Y g:i a') . ' from the admin panel.'), true);
                     return ['message' => 'Sent to ' . $this->user->email . '. Check the spam folder too.'];
+                });
+                break;
+
+            // the tab icon, same shape as the banner image: multipart POST {image, csrf_token} to set, favicon/delete to clear
+            case 'favicon':
+                if ($sub === 'delete') {
+                    $this->respond(function() {
+                        $data = $this->input();
+                        $this->checkCsrf($data);
+                        $info = StoreInfoModel::getAll();
+                        if ($info && $info->favicon) $this->unlinkImage($info->favicon);
+                        StoreInfoModel::setFavicon(null);
+                        return ['message' => 'Back to the default icon.'];
+                    });
+                    break;
+                }
+
+                $this->respond(function() {
+                    $this->checkCsrf((object) $_POST);
+                    $old = StoreInfoModel::getAll();
+                    $path = $this->saveUpload($_FILES['image'] ?? null, 'favicon');
+                    StoreInfoModel::setFavicon($path);
+                    if ($old && $old->favicon) $this->unlinkImage($old->favicon);
+                    return ['message' => 'Icon saved.', 'image' => $path];
                 });
                 break;
 

@@ -61,7 +61,7 @@ A REST app at developer.paypal.com gives a client id and secret, those go in `PA
 
 ## Admin
 
-`/admin` is for accounts with `is_admin = 1`. Dashboard, orders, products (with image upload, first image is the card image), categories, accounts (flags and staff notes, you cannot un-admin yourself), store settings (contact details, currency, tax, shipping, and the home page banner: heading, a line, a button, plus the image uploaded under Banner Image. No image, no banner). Everything saves through `POST /api/admin/<section>/<action>`.
+`/admin` is for accounts with `is_admin = 1`. Dashboard, orders, products (with image upload, first image is the card image), categories, accounts (flags and staff notes, you cannot un-admin yourself), store settings (contact details, currency, tax, shipping, the tab icon, and the home page banner: image, heading, a line and a button, each optional. No image, no banner). Everything saves through `POST /api/admin/<section>/<action>`.
 
 Product images are checked by content type (jpg, png, webp, gif, 4 MB cap in config) and saved as `assets/images/items/<slug>-<n>.<ext>`. Deleting a product or an image deletes the file too.
 

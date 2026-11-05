@@ -19,6 +19,7 @@ class StoreInfoModel {
 	public $free_shipping_over;
 	public $timezone;
 	public $logo;
+	public $favicon;
 	public $hero_image;
 	public $hero_heading;
 	public $hero_text;
@@ -45,7 +46,7 @@ class StoreInfoModel {
 
 	public static function getBase() {
 		$db = new DatabaseLibrary();
-		$select = $db->pdo->prepare('SELECT store_name, company_name, currency FROM `store_info` LIMIT 1');
+		$select = $db->pdo->prepare('SELECT store_name, company_name, currency, favicon FROM `store_info` LIMIT 1');
 		$select->execute();
 		$record = $select->fetch();
 
@@ -173,10 +174,13 @@ class StoreInfoModel {
 		return $update->execute();
 	}
 
-	// the banner image is set by the uploader, so it has its own write. null clears it
-	public static function setHeroImage($path) {
+	// the banner image and the tab icon are set by their uploaders, so they have their own writes. null clears
+	public static function setHeroImage($path) { return self::setPath('hero_image', $path); }
+	public static function setFavicon($path)   { return self::setPath('favicon', $path); }
+
+	private static function setPath($column, $path) {
 		$db = new DatabaseLibrary();
-		$update = $db->pdo->prepare('UPDATE `store_info` SET hero_image = :path LIMIT 1');
+		$update = $db->pdo->prepare("UPDATE `store_info` SET `$column` = :path LIMIT 1");
 		$update->bindValue(':path', $path, $path === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
 		return $update->execute();
 	}

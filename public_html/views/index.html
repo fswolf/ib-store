@@ -3,7 +3,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title><?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
-		<link rel="icon" type="image/x-icon" href="assets/images/bored.png">
+		<link rel="icon" href="<?= $favicon ?? '/assets/images/bored.png' ?>">
 		<link href="assets/css/styles.css" rel="stylesheet" />
 	</head>
 
@@ -17,7 +17,7 @@
 			<!-- hero banner, set under Admin > Store Settings. the image fills the box (an img, not an inline style, the csp
 			     in config/security.php does not allow those), the words sit on a gradient over it -->
 			<section class="hero">
-				<img class="hero-image" src="/<?= htmlspecialchars($hero->hero_image) ?>" alt="">
+				<img class="hero-image" src="<?= htmlspecialchars(upload_url($hero->hero_image)) ?>" alt="">
 				<div class="hero-inner">
 					<?php if ($hero->hero_heading): ?><h1><?= htmlspecialchars($hero->hero_heading) ?></h1><?php endif; ?>
 					<?php if ($hero->hero_text): ?><p><?= htmlspecialchars($hero->hero_text) ?></p><?php endif; ?>
