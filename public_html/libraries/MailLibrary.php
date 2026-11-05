@@ -29,22 +29,24 @@ class MailLibrary {
 		return true;
 	}
 
-	// the dark card imbored.me's reset mail uses. $lines is html already (escape what came from users)
+	// a card in the store's own theme (styles.css light palette). solid colours only, set on every cell:
+	// mail clients drop body styles, gradients and rgba, so nothing here leans on them. $lines is html already
 	public static function card($title, $heading, $lines, $button = null, $link = null) {
+		$font = "system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
 		$action = $button && $link
-			? '<tr><td align="center" style="padding-bottom:20px;"><a href="' . htmlspecialchars($link) . '" style="display:inline-block;padding:12px 22px;border-radius:22px;background:#d4af37;color:#1a1a1a;text-decoration:none;font-weight:600;font-size:14px;border:1px solid rgba(212,175,55,0.6);">' . htmlspecialchars($button) . '</a></td></tr>'
+			? '<tr><td align="center" style="padding-bottom:20px;"><a href="' . htmlspecialchars($link) . '" style="display:inline-block;padding:12px 22px;border-radius:8px;background-color:#4f46e5;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;font-family:' . $font . ';">' . htmlspecialchars($button) . '</a></td></tr>'
 			: '';
 
 		return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' . htmlspecialchars($heading) . '</title></head>
-		<body style="margin:0;padding:0;background:#1a1a1a;font-family:Segoe UI,Arial,sans-serif;color:#f8f9fa;">
-			<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#2b2b2b;background:linear-gradient(135deg,#2b2b2b,#3a2f4a);color:#f8f9fa;padding:40px 15px;">
+		<body style="margin:0;padding:0;background-color:#f5f7fa;font-family:' . $font . ';color:#333333;">
+			<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#f5f7fa" style="background-color:#f5f7fa;padding:40px 15px;">
 				<tr><td align="center">
-					<table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:rgba(50,50,50,0.35);color:#f8f9fa;font-family:Segoe UI,Arial,sans-serif;border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px 26px;box-shadow:0 10px 35px rgba(0,0,0,0.5);">
-						<tr><td style="text-align:center;font-size:20px;font-weight:600;padding-bottom:6px;">' . htmlspecialchars($title) . '</td></tr>
-						<tr><td style="text-align:center;font-size:13px;opacity:0.65;padding-bottom:18px;">' . htmlspecialchars($heading) . '</td></tr>
-						<tr><td style="font-size:14px;line-height:1.6;padding-bottom:18px;">' . $lines . '</td></tr>
+					<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="max-width:480px;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:28px 26px;">
+						<tr><td style="text-align:center;font-family:' . $font . ';font-size:20px;font-weight:600;color:#1e293b;padding-bottom:6px;">' . htmlspecialchars($title) . '</td></tr>
+						<tr><td style="text-align:center;font-family:' . $font . ';font-size:13px;color:#64748b;padding-bottom:18px;">' . htmlspecialchars($heading) . '</td></tr>
+						<tr><td style="font-family:' . $font . ';font-size:14px;line-height:1.6;color:#333333;padding-bottom:18px;">' . $lines . '</td></tr>
 						' . $action . '
-						<tr><td style="font-size:11px;opacity:0.45;text-align:center;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">&copy; ' . date('Y') . ' ' . htmlspecialchars($title) . '</td></tr>
+						<tr><td style="font-family:' . $font . ';font-size:11px;color:#64748b;text-align:center;padding-top:10px;border-top:1px solid #e2e8f0;">&copy; ' . date('Y') . ' ' . htmlspecialchars($title) . '</td></tr>
 					</table>
 				</td></tr>
 			</table>

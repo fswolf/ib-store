@@ -88,7 +88,7 @@ class OrderMailLibrary {
 		if (!$this->order->downloadsReady()) return '';
 		$out = '';
 		foreach ($this->order->items as $item) {
-			if ($item['digital'] && $item['download_url']) $out .= '<br>Download: <a href="' . htmlspecialchars($item['download_url']) . '" style="color:#d4af37">' . htmlspecialchars($item['name']) . '</a>';
+			if ($item['digital'] && $item['download_url']) $out .= '<br>Download: <a href="' . htmlspecialchars($item['download_url']) . '" style="color:#4f46e5">' . htmlspecialchars($item['name']) . '</a>';
 		}
 		return $out;
 	}
