@@ -1,6 +1,6 @@
 # iB Store
 
-A small self hosted store front in plain PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching [FlightJS](https://github.com/fswolf/flightjs) front end on a plain LAMP stack plus Redis. No Composer, no bundler, no framework bloat. Clone it, point Apache at `public_html`, import the database and you have a store.
+A small self hosted store front in PHP. Physical and digital products, cart, checkout, customer accounts, order emails, an admin panel, and three payment options: Bitcoin through your own BTCPay Server, cards through Stripe Checkout, and PayPal. Built on [Flight PHP](https://flightphp.com/) with a matching [FlightJS](https://github.com/fswolf/flightjs) front end on a plain LAMP stack plus Redis. No Composer, no bundler, no framework bloat. Clone it, point Apache at `public_html`, import the database and you have a store.
 
 ![the store front](docs/screenshots/home.png)
 
@@ -38,7 +38,7 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 - Apache with `mod_rewrite` (the `.htaccess` is in `public_html`), or anything else that can send every request to `index.php`
 - PHP 8.1 or newer with `pdo_mysql`, `mbstring`, `curl`, `json` and `fileinfo`. Bitcoin also needs `bcmath`
 - MariaDB or MySQL
-- A working `mail()` on the server for the order emails (optional, the store runs without it)
+- A working `mail()` on the server for the order emails (optional, the store runs without it, see [Mail](#mail) below)
 - Redis on localhost and the php redis extension. The rate limiter (`REQUEST_LIMIT` per minute per ip in the config) runs on Redis and only falls back to files in `cache/req/` when the extension is missing, so install it for full functionality
 
 ## Install
@@ -51,6 +51,15 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 6. For Bitcoin, run `./update-libs.sh` once. It pulls the official BTCPay Greenfield client into `public_html/assets/vendor/`.
 
 Everything after that is in [docs/README.md](docs/README.md): how the code hangs together, the flow of a sale, and the step by step for each payment gateway (what to create on the BTCPay, Stripe and PayPal side, which webhook events, where the ids go).
+
+## Mail
+
+The store sends through php `mail()`, which hands each message to the server's MTA. Whether it reaches an inbox is down to how that MTA sends, not the store, so sort it out before you sell anything: an order email is the customer's receipt, and a missing one turns into a chargeback instead of an email to you.
+
+- **Send through a relay, not straight off the box.** Most hosts block outbound port 25, and mail sent directly from a VPS or home IP is judged on that address range's reputation. Point the MTA at an authenticated SMTP relay instead: your mail provider's SMTP, or a service like Amazon SES, Mailgun or Postmark. With postfix that is `relayhost` plus SASL auth, with msmtp it is a few lines in `/etc/msmtprc` and `sendmail_path` in php.ini pointing at it.
+- **Send as your own domain.** `MAIL_FROM` should be an address on the store's domain, and that domain needs SPF and DKIM for the relay plus a DMARC record. The relay's setup page gives you the DNS records.
+- **Set the bounce address.** The store does not pass an envelope sender to `mail()`, so bounces go wherever the MTA says. Set it to an address you read (`from` in msmtprc, or `-f you@yourdomain` on `sendmail_path`), otherwise a receipt that never arrived is invisible.
+- **Test it for real.** Use the test email button in Store Settings, then put an order through and check where both land in a Gmail account, inbox or spam.
 
 ## Payments in one paragraph
 
@@ -75,7 +84,7 @@ The home page banner is set from the same place: upload a picture, type the head
       controllers/      page controllers render views, controllers/api/ answer json
       models/           one class per table
       libraries/        cart, mail, sessions, database, and PaymentLibrary with the three gateways under it
-      views/            plain php templates, shared pieces in views/include/
+      views/            php templates, shared pieces in views/include/
       assets/js/        FlightJS: routes.js maps a url to a page class in pages/
       assets/vendor/    third party code, picked up by the same autoloader
       flight/           the Flight PHP framework
