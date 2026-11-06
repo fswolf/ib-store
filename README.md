@@ -31,7 +31,7 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 - **Admin panel** for orders, products, categories, accounts and store settings, with a test email button
 - **Hero banner** on the home page, image plus heading, line and button, all set from the admin panel. Leave the image empty and it is not there
 - **Tab icon** uploaded from the same settings page, with the bored face as the default
-- **Payments** behind one small interface, so each gateway is a single class. Switch any of them on by filling in its keys in the config, leave them empty and the option stays off the payment page
+- **Payments** behind one small interface, so each gateway is a single class. Switch any of them on by filling in its keys in the config, leave them empty and the option stays off the payment page. One with keys can also be switched off from Store Settings without touching the keys
 
 ## Requirements
 

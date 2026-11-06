@@ -17,6 +17,7 @@ class PaymentApiController extends ApiController {
                     $this->checkCsrf($data);
                     $order = $this->order($data->order ?? '');
                     if ($order->status !== 'pending') throw new Exception('This order is not waiting on payment');
+                    if (!isset(PaymentLibrary::enabledList()[$gateway::METHOD])) throw new Exception('That payment option is switched off right now');
 
                     $redirect = base_url() . '/cart/payment/' . $order->uuid;
                     return ['redirect' => $this->ask($gateway, fn() => $gateway->start($order, $redirect))];

@@ -25,6 +25,7 @@ class StoreInfoModel {
 	public $hero_text;
 	public $hero_button;
 	public $hero_link;
+	public $payments_off;
 	public $created_at;
 	public $updated_at;
 
@@ -171,6 +172,24 @@ class StoreInfoModel {
 		$db = new DatabaseLibrary();
 		$update = $db->pdo->prepare('UPDATE `store_info` SET hero_heading = :hero_heading, hero_text = :hero_text, hero_button = :hero_button, hero_link = :hero_link LIMIT 1');
 		foreach (self::HERO_FIELDS as $field => $max) $update->bindValue(":$field", $this->{$field}, $this->{$field} === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+		return $update->execute();
+	}
+
+	// -- Payment switches -- //
+	// gateways switched off in the admin panel, by their PaymentLibrary::all() name. one with its keys in config is on
+	// unless it is in here, so a new gateway needs no column
+	public static function getPaymentsOff() {
+		$db = new DatabaseLibrary();
+		$select = $db->pdo->prepare('SELECT payments_off FROM `store_info` LIMIT 1');
+		$select->execute();
+		$value = (string) $select->fetchColumn();
+		return $value === '' ? array() : explode(',', $value);
+	}
+
+	public static function setPaymentsOff($names) {
+		$db = new DatabaseLibrary();
+		$update = $db->pdo->prepare('UPDATE `store_info` SET payments_off = :payments_off LIMIT 1');
+		$update->bindValue(':payments_off', implode(',', $names), PDO::PARAM_STR);
 		return $update->execute();
 	}
 

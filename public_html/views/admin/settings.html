@@ -187,7 +187,7 @@
 
 				        <section class="admin-section">
 				            <h2>Payments</h2>
-				            <p class="form-hint">Keys live in config/config.php, docs/README.md has the steps for each. A gateway with its keys filled in shows up on the payment page by itself.</p>
+				            <p class="form-hint">Keys live in config/config.php, docs/README.md has the steps for each. A gateway with its keys filled in can be switched on and off here without touching them. Off only takes it off the payment page, a payment already started on it still goes through.</p>
 				            <?php
 				            	// one row per gateway in the registry. the words here are the only per gateway bit, the on / off comes from the library
 				            	$webhook = (is_https() ? 'https' : 'http') . '://' . htmlspecialchars($_SERVER['HTTP_HOST']) . '/api/payment/';
@@ -197,12 +197,17 @@
 				            		'paypal' => array('PayPal', 'PayPal Orders' . (PAYPAL_SANDBOX ? ', sandbox' : ', live'), 'PAYPAL_CLIENT_ID and PAYPAL_SECRET', PAYPAL_WEBHOOK_ID === '' ? 'Webhook is optional, the store captures when the customer comes back. To add one anyway, set PAYPAL_WEBHOOK_ID and point it at:' : 'Webhook:'),
 				            	);
 				            ?>
+				            <!-- admin/settings.js posts this to /api/admin/settings/payments, a box per gateway with keys -->
+				            <form id="payments-form">
 				            <div class="gateway-list">
-				                <?php foreach (PaymentLibrary::all() as $name => $class): $on = isset($gateways[$name]); [$title, $via, $keys, $hook] = $about[$name] ?? array($class::LABEL, $class, '', 'Webhook:'); ?>
+				                <?php foreach (PaymentLibrary::all() as $name => $class): $ready = $class::enabled(); $on = isset($gateways[$name]); [$title, $via, $keys, $hook] = $about[$name] ?? array($class::LABEL, $class, '', 'Webhook:'); ?>
 				                <div class="gateway">
 				                    <strong><?= $title ?> <small>through <?= $via ?></small></strong>
-				                    <span class="order-status <?= $on ? 'complete' : '' ?>"><?= $on ? 'On' : 'Off' ?></span>
-				                    <?php if ($on): ?>
+				                    <span class="order-status <?= $on ? 'complete' : ($ready ? 'pending' : '') ?>"><?= $on ? 'On' : ($ready ? 'Switched off' : 'Off') ?></span>
+				                    <?php if ($ready): ?>
+				                    <div class="check-group">
+				                        <label><input name="<?= $name ?>" type="checkbox" value="1"<?= $on ? ' checked' : '' ?>> Show on the payment page</label>
+				                    </div>
 				                    <p><?= $hook ?><br><code><?= $webhook . $name ?>/webhook</code></p>
 				                    <?php else: ?>
 				                    <p>Fill in <?= $keys ?> to turn it on.</p>
@@ -210,6 +215,13 @@
 				                </div>
 				                <?php endforeach; ?>
 				            </div>
+
+				            <?php if (array_filter(PaymentLibrary::all(), fn($class) => $class::enabled())): ?>
+				            <div class="form-actions">
+				                <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Save Payments</button>
+				            </div>
+				            <?php endif; ?>
+				            </form>
 				        </section>
 
 <?php include __DIR__ . '/include/foot.html'; ?>

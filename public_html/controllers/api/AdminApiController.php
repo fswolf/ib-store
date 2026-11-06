@@ -321,6 +321,23 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
+            // POST {<gateway name>: 1 for each box ticked, csrf_token}: which gateways with keys show on the payment page.
+            // only those have a box, a gateway without keys keeps whatever it had
+            case 'payments':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $off = StoreInfoModel::getPaymentsOff();
+                    foreach (PaymentLibrary::all() as $name => $class) {
+                        if (!$class::enabled()) continue;
+                        $off = array_diff($off, array($name));
+                        if (empty($data->{$name})) $off[] = $name;
+                    }
+                    StoreInfoModel::setPaymentsOff(array_values($off));
+                    return ['message' => 'Payments saved.'];
+                });
+                break;
+
             // the tab icon, same shape as the banner image: multipart POST {image, csrf_token} to set, favicon/delete to clear
             case 'favicon':
                 if ($sub === 'delete') {

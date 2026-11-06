@@ -27,6 +27,11 @@ export default class AdminSettings {
             this.heroText = new ApiForm({ form: "hero-text-form", endpoint: `${this.endpoint}/hero/save` });
         }
 
+        // the payment switches, one box per gateway with keys. reload so the on / off labels follow
+        if (document.getElementById('payments-form')) {
+            this.payments = new ApiForm({ form: "payments-form", endpoint: `${this.endpoint}/payments`, onDone: () => this.reload() });
+        }
+
         // the image uploads (tab icon, banner) go through file_upload.js. the form's data-action names the api action,
         // its remove button posts to <action>/delete. both reload after so the preview and buttons follow the server
         document.querySelectorAll('form.image-upload[data-action]').forEach((form) => {

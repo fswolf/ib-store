@@ -15,14 +15,17 @@ abstract class PaymentLibrary {
 		);
 	}
 
-	// name => label for the ones switched on in config, in button order
+	// name => label for the ones customers can pay with, in button order: keys filled in config and not switched off
+	// in the admin panel (store settings > payments)
 	public static function enabledList() {
+		$off = StoreInfoModel::getPaymentsOff();
 		$out = array();
-		foreach (self::all() as $name => $class) if ($class::enabled()) $out[$name] = $class::LABEL;
+		foreach (self::all() as $name => $class) if ($class::enabled() && !in_array($name, $off)) $out[$name] = $class::LABEL;
 		return $out;
 	}
 
-	// an instance by name, false when unknown or switched off
+	// an instance by name, false when unknown or its keys are missing. one switched off in the admin panel still
+	// answers here, so a payment started before the switch can be checked and settle through its webhook
 	public static function get($name) {
 		$class = self::all()[$name] ?? null;
 		if (!$class || !$class::enabled()) return false;
