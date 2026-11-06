@@ -76,6 +76,8 @@ class StripeLibrary extends PaymentLibrary {
 	// Stripe-Signature is t=...,v1=..., an hmac over "t.body". throws when it is wrong or older than five minutes.
 	// checkout.session.completed is the pay event, async methods (bank debits) finish with async_payment_succeeded
 	public function webhook($body, $server) {
+		// an empty secret signs with an empty key, which anyone can do. without it the status check still settles
+		if ($this->webhook_secret === '') throw new Exception('STRIPE_WEBHOOK_SECRET is not set, webhook refused');
 		$signature = $server['HTTP_STRIPE_SIGNATURE'] ?? '';
 		$parts = array();
 		foreach (explode(',', (string) $signature) as $pair) {

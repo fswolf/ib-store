@@ -1,6 +1,9 @@
 # secrets stay on the server, copy config.example.php to config.php
 public_html/config/config.php
 
+# paid files for digital products, see DOWNLOAD_DIR in config
+downloads/
+
 # written by the site at runtime
 public_html/cache/
 public_html/error.log

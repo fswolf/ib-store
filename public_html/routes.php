@@ -29,6 +29,7 @@ Flight::route('/reset/@token', array(new AuthController(), 'reset'));
 Flight::route('/user/settings', array(new AccountController(), 'settings'));
 Flight::route('/user/orders', array(new AccountController(), 'orders'));
 Flight::route('/user/orders/@uuid', array(new AccountController(), 'order'));
+Flight::route('/user/orders/@uuid/download/@item:[0-9]+', array(new AccountController(), 'download'));
 
 // Admin (is_admin accounts only, see BaseController::requireAdmin)
 Flight::route('/admin', array(new AdminController(), 'dashboard'));

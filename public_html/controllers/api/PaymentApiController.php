@@ -18,7 +18,7 @@ class PaymentApiController extends ApiController {
                     $order = $this->order($data->order ?? '');
                     if ($order->status !== 'pending') throw new Exception('This order is not waiting on payment');
 
-                    $redirect = (is_https() ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/cart/payment/' . $order->uuid;
+                    $redirect = base_url() . '/cart/payment/' . $order->uuid;
                     return ['redirect' => $this->ask($gateway, fn() => $gateway->start($order, $redirect))];
                 });
                 break;

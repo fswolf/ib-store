@@ -1,86 +1,80 @@
 <?php
-Flight::map('rateLimitFile', function() {
-    $ip = Flight::request()->ip;
-    $key = preg_replace('/[^a-zA-Z0-9_]/', '_', $ip);
+// -- Rate limits -- //
+// one counter per key per window: redis when the extension is there and the server answers, files in cache/req/
+// otherwise. answers how many hits the key has had this window, the current one included
+Flight::map('rateHit', function($key, $window = 60) {
+    $key = preg_replace('/[^a-zA-Z0-9_]/', '_', $key);
+    $attempts = Flight::rateHitRedis($key, $window);
+    return $attempts !== null ? $attempts : Flight::rateHitFile($key, $window);
+});
 
-    $base = $_SERVER['DOCUMENT_ROOT'];
-    $cacheFile = $base . '/cache/req/rate_' . $key . '.json';
-    $window = 60;
+Flight::map('rateHitFile', function($key, $window) {
+    $dir = dirname(__DIR__) . '/cache/req/';
+    if (!is_dir($dir)) mkdir($dir, 0755, true); // cache/ is not in git, nothing else makes this one
+    $cacheFile = $dir . 'rate_' . $key . '.json';
+    $now = time();
 
-    $dir = $base . '/cache/req/';
-
-    // only scan if directory is getting large
+    // only scan if directory is getting large. an hour outlives every window
     $files = glob($dir . 'rate_*.json');
-
     if ($files !== false && count($files) > 200) {
-        $now = time();
-
         foreach ($files as $file) {
-            if (is_file($file)) {
-                $age = $now - filemtime($file);
-                if ($age > $window) {
-                    unlink($file);
-                }
-            }
+            if (is_file($file) && $now - filemtime($file) > 3600) unlink($file);
         }
     }
 
-    if (file_exists($cacheFile)) {
-        $age = time() - filemtime($cacheFile);
-        if ($age > $window) unlink($cacheFile);
+    // the window runs from the first hit, kept in the file (its mtime moves on every write)
+    $hit = array('start' => $now, 'attempts' => 0);
+    if (is_file($cacheFile)) {
+        $decoded = json_decode((string) file_get_contents($cacheFile), true);
+        if (isset($decoded['start'], $decoded['attempts']) && $now - (int) $decoded['start'] < $window) $hit = $decoded;
     }
+    $hit['attempts']++;
 
-    $attempts = 0;
-
-    if (file_exists($cacheFile)) {
-        $decoded = json_decode(file_get_contents($cacheFile), true);
-        if (isset($decoded['attempts'])) {
-            $attempts = (int)$decoded['attempts'];
-        }
-    }
-
-    $attempts++;
-
-    if ($attempts >= REQUEST_LIMIT) {
-        Flight::halt(429, 'Too many requests');
-    }
-
-    file_put_contents($cacheFile, json_encode(['attempts' => $attempts]), LOCK_EX);
+    file_put_contents($cacheFile, json_encode($hit), LOCK_EX);
+    return (int) $hit['attempts'];
 });
 
-Flight::map('rateLimitRedis', function() {
+// null when redis is missing or not answering, so the caller falls back to files instead of the site going down
+Flight::map('rateHitRedis', function($key, $window) {
     static $redis = null;
+    if ($redis === false || !class_exists('Redis')) return null;
 
-    // lazy init (only connect once)
-    if ($redis === null) {
-        $redis = new Redis();
-        $redis->connect('127.0.0.1', 6379);
+    try {
+        // lazy init (only connect once)
+        if ($redis === null) {
+            $redis = new Redis();
+            $redis->connect('127.0.0.1', 6379, 0.5);
+        }
+
+        // atomic increment, expiry set ONLY on first hit
+        $attempts = $redis->incr('rate:' . $key);
+        if ($attempts === 1) $redis->expire('rate:' . $key, $window);
+        return (int) $attempts;
     }
-
-    $ip = Flight::request()->ip;
-    $key = 'rate:' . preg_replace('/[^a-zA-Z0-9_]/', '_', $ip);
-
-    $window = 60;
-
-    // atomic increment
-    $attempts = $redis->incr($key);
-
-    // set expiry ONLY on first hit
-    if ($attempts === 1) {
-        $redis->expire($key, $window);
+    catch (Throwable $e) {
+        $redis = false;
+        return null;
     }
+});
 
-    if ($attempts >= REQUEST_LIMIT) {
+// every request: REQUEST_LIMIT a minute per visitor
+Flight::map('rateLimit', function() {
+    if (Flight::rateHit('req_' . client_ip(), 60) >= REQUEST_LIMIT) {
         Flight::halt(429, 'Too many requests');
     }
 });
 
-Flight::map('rateLimit', function() {
-    if (class_exists('Redis')) {
-        Flight::rateLimitRedis();
-    } else {
-        Flight::rateLimitFile();
-    }
+// sign in, register, forgot and reset: AUTH_LIMIT tries per AUTH_WINDOW per visitor and per account email, so
+// guessing passwords is slow from one address and slow against one account from many. throws, the api answers it
+Flight::map('authLimit', function($email = '') {
+    $limit = defined('AUTH_LIMIT') ? AUTH_LIMIT : 10;
+    $window = defined('AUTH_WINDOW') ? AUTH_WINDOW : 900;
+    if (!$limit) return;
+
+    $over = Flight::rateHit('auth_ip_' . client_ip(), $window) > $limit;
+    $email = strtolower(trim((string) $email));
+    if ($email !== '' && Flight::rateHit('auth_email_' . sha1($email), $window) > $limit) $over = true;
+    if ($over) throw new Exception('Too many tries, wait a few minutes and try again.');
 });
 
 Flight::before('start', function() {

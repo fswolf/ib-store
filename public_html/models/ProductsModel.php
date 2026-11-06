@@ -221,6 +221,21 @@ class ProductsModel {
 		return $this;
 	}
 
+	// what the public product api hands out, the fields a product card reads. never the whole model:
+	// download_url is the paid file, and the admin columns are nobody else's business
+	public function toArray() {
+		return array(
+			'id' => (int) $this->id,
+			'name' => $this->name,
+			'slug' => $this->slug,
+			'image' => $this->image,
+			'price' => $this->price,
+			'stock' => (int) $this->stock,
+			'digital' => (int) $this->digital,
+			'badge' => (int) $this->badge,
+		);
+	}
+
 	// can it go in a cart: in stock (digital always is) and not tagged coming soon.
 	// the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
 	public function buyable() {

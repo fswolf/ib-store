@@ -62,7 +62,27 @@ function base64encode($string) {
 	return urlencode(base64_encode($string));
 }
 
-// are we on https, counting a proxy in front (the nuc terminates ssl before apache sees it)
+// the store's own address for links that leave the page (emails, gateway return urls). BASE_URL from config,
+// never the request's Host header: a visitor can send any host they like and get it written into a reset mail.
+// the host fallback is only there so a local test server without BASE_URL still works
+function base_url() {
+	if (defined('BASE_URL') && BASE_URL !== '') return rtrim(BASE_URL, '/');
+	return (is_https() ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
+
+// the visitor's address for the rate limits. behind a reverse proxy REMOTE_ADDR is the proxy for everyone, so
+// when the request comes from TRUSTED_PROXY take the last X-Forwarded-For entry, the one the proxy added.
+// anything left of it came from the visitor and can be made up
+function client_ip() {
+	$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+	if (defined('TRUSTED_PROXY') && TRUSTED_PROXY !== '' && $ip === TRUSTED_PROXY && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		$hops = array_map('trim', explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+		$last = end($hops);
+		if (filter_var($last, FILTER_VALIDATE_IP)) $ip = $last;
+	}
+	return $ip;
+}
+
 // a site relative url for an uploaded file with its change time on the end, so a replaced tab icon or banner
 // shows up instead of the browser's cached copy of the old one (same file name, new picture)
 function upload_url($path) {
@@ -70,6 +90,19 @@ function upload_url($path) {
 	return '/' . $path . (is_file($file) ? '?v=' . filemtime($file) : '');
 }
 
+// a digital product's file inside DOWNLOAD_DIR, false when it is missing or the name tries to climb out of the
+// folder. values from before the move (/downloads/file.zip) still work, the leading folder is dropped
+function download_path($name) {
+	// an older config.php without DOWNLOAD_DIR gets the default, downloads/ next to public_html
+	$dir = realpath(defined('DOWNLOAD_DIR') && DOWNLOAD_DIR !== '' ? DOWNLOAD_DIR : dirname(__DIR__) . '/downloads/');
+	if (!$dir) return false;
+	$name = preg_replace('#^/*(downloads/)?#', '', (string) $name);
+	$file = realpath($dir . '/' . $name);
+	if (!$file || !is_file($file) || strpos($file, $dir . DIRECTORY_SEPARATOR) !== 0) return false;
+	return $file;
+}
+
+// are we on https, counting a proxy in front (the nuc terminates ssl before apache sees it)
 function is_https() {
 	if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') return true;
 	return strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';

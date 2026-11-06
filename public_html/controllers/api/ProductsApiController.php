@@ -6,7 +6,7 @@ class ProductsApiController {
         try {
             $products = $callback();
             if ($products) {
-                $result['products'] = $products;
+                $result['products'] = array_map(fn($product) => $product->toArray(), $products);
                 unset($result['error']);
             }
         } catch (Throwable $e) {

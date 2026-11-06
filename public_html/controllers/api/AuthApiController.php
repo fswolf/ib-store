@@ -11,6 +11,7 @@ class AuthApiController extends ApiController {
 			if($data->csrf_token == $session->get('csrf_token')) {
 				try {
 					$clean_email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+					Flight::authLimit($clean_email);
 					if(AccountsModel::login($clean_email, $data->password, isset($data->remember) && $data->remember)) {
 						$session->set('csrf_token', NULL);
 						unset($result['error']);
@@ -37,6 +38,7 @@ class AuthApiController extends ApiController {
 		$this->respond(function() {
 			$data = $this->input();
 			$this->checkCsrf($data);
+			Flight::authLimit($data->email ?? '');
 
 			// username and email are checked inside register()
 			$password = AccountsModel::checkNewPassword($data->password ?? '', $data->confirm ?? '');
@@ -61,12 +63,13 @@ class AuthApiController extends ApiController {
 			if (!MailLibrary::enabled()) throw new Exception('Password resets are not available on this server. Contact the store.');
 
 			$email = filter_var(trim((string) ($data->email ?? '')), FILTER_SANITIZE_EMAIL);
+			Flight::authLimit($email);
 			$account = filter_var($email, FILTER_VALIDATE_EMAIL) ? AccountsModel::getAccountByEmail($email) : false;
 
 			if ($account) {
 				$token = PasswordResetsModel::create($account->id);
 				$info = StoreInfoModel::getBase();
-				$link = (is_https() ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/reset/' . $token;
+				$link = base_url() . '/reset/' . $token;
 				$body = MailLibrary::card($info->store_name, 'Password Reset Request',
 					'We received a request to reset the password on your account.<br>If this was you, click the button below to choose a new one. The link works for ' . round(RESET_LIFE / 60) . ' minutes.<br><br><span style="font-size:12px;opacity:0.65;">If you did not ask for this, ignore this email and nothing changes.</span>',
 					'Reset Password', $link);
@@ -92,6 +95,7 @@ class AuthApiController extends ApiController {
 		$this->respond(function() {
 			$data = $this->input();
 			$this->checkCsrf($data);
+			Flight::authLimit();
 
 			$account = PasswordResetsModel::check((string) ($data->token ?? ''));
 			if (!$account) throw new Exception('That reset link is not valid any more, ask for a new one.');

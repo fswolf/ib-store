@@ -316,7 +316,7 @@ class AdminApiController extends ApiController {
                     $info = StoreInfoModel::getContact();
                     $mail = new MailLibrary(['from_name' => $info->store_name]);
                     $mail->send($this->user->email, "{$info->store_name} test email",
-                        MailLibrary::card($info->store_name, 'Test email', 'If you are reading this, outgoing mail from ' . htmlspecialchars($_SERVER['HTTP_HOST'] ?? '') . ' works.<br>Sent ' . date('M j, Y g:i a') . ' from the admin panel.'), true);
+                        MailLibrary::card($info->store_name, 'Test email', 'If you are reading this, outgoing mail from ' . htmlspecialchars(base_url()) . ' works.<br>Sent ' . date('M j, Y g:i a') . ' from the admin panel.'), true);
                     return ['message' => 'Sent to ' . $this->user->email . '. Check the spam folder too.'];
                 });
                 break;

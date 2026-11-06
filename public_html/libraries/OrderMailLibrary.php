@@ -12,7 +12,7 @@ class OrderMailLibrary {
 		$this->order = $order;
 		$this->info = StoreInfoModel::getContact();
 		$this->mail = new MailLibrary(['from_name' => $this->info->store_name, 'reply_to' => (string) $this->info->email]);
-		$this->link = (is_https() ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/user/orders/' . $order->uuid;
+		$this->link = base_url() . '/user/orders/' . $order->uuid;
 		$this->short = substr($order->uuid, 0, 8);
 		if (!$order->items) $order->getItems();
 	}
@@ -88,7 +88,7 @@ class OrderMailLibrary {
 		if (!$this->order->downloadsReady()) return '';
 		$out = '';
 		foreach ($this->order->items as $item) {
-			if ($item['digital'] && $item['download_url']) $out .= '<br>Download: <a href="' . htmlspecialchars($item['download_url']) . '" style="color:#4f46e5">' . htmlspecialchars($item['name']) . '</a>';
+			if ($item['digital'] && $item['download_url']) $out .= '<br>Download: <a href="' . htmlspecialchars($this->link . '/download/' . (int) $item['id']) . '" style="color:#4f46e5">' . htmlspecialchars($item['name']) . '</a>';
 		}
 		return $out;
 	}

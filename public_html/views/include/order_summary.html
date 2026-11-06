@@ -49,7 +49,7 @@
                 <?php if ($item['sku']): ?><small class="order-sku"><?= htmlspecialchars($item['sku']) ?></small><?php endif; ?>
                 <?php if ($item['digital']): ?>
                     <?php if ($order->downloadsReady() && $item['download_url']): ?>
-                    <br><a class="download-link" href="<?= htmlspecialchars($item['download_url']) ?>" rel="noopener">Download</a>
+                    <br><a class="download-link" href="/user/orders/<?= htmlspecialchars($order->uuid) ?>/download/<?= (int) $item['id'] ?>" rel="noopener">Download</a>
                     <?php else: ?>
                     <br><small class="order-sku">Download available once paid</small>
                     <?php endif; ?>

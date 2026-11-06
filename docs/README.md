@@ -9,7 +9,8 @@ A general store front on Flight PHP + FlightJS. Physical and digital products, c
 3. Copy `public_html/config/config.example.php` to `config.php`, fill in `DB_*`. Leave `display_errors` off on a live server. `config.php` is in `.gitignore`.
 4. Mail goes out through php `mail()` and the server's MTA. `MAIL_FROM` in config is the from address. Set it empty and the forgot password page says mail is off instead of failing.
 5. Make `cache/` and `assets/images/items/` writable by the web user. `cache/` holds the class map and the rate limit files, `assets/images/items/` is where admin product uploads land.
-6. Register, set `is_admin = 1` on that account in the `accounts` table, and open `/admin`. Set the currency, tax rate and shipping in Store Settings first.
+6. Set `BASE_URL` to the store's public address, emailed links are built from it. Files for digital products go in `downloads/` next to `public_html` (`DOWNLOAD_DIR`) where Apache cannot serve them, the store hands them to paid orders through `/user/orders/<uuid>/download/<line>`. Behind a reverse proxy, put its address in `TRUSTED_PROXY` so the rate limits count visitors instead of the proxy.
+7. Register, set `is_admin = 1` on that account in the `accounts` table, and open `/admin`. Set the currency, tax rate and shipping in Store Settings first.
 
 The class map cache (`cache/class_map.json`) rebuilds itself every 24 hours or when deleted. Delete it after moving the site or adding classes if something cannot be found.
 
