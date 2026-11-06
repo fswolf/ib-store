@@ -44,9 +44,28 @@ class AuthApiController extends ApiController {
 			$password = AccountsModel::checkNewPassword($data->password ?? '', $data->confirm ?? '');
 			$account = AccountsModel::register($data->username ?? '', $data->email ?? '', $password);
 			AccountsModel::login($account->email, $password);
+			$this->verifyMail($account);
 			$this->session->set('csrf_token', null);
 			return ['redirect' => '/'];
 		});
+	}
+
+	// the confirm your email mail after sign up. best effort: a mail problem goes in the log, the account is made either way
+	private function verifyMail($account) {
+		if (!MailLibrary::enabled()) return;
+		$info = StoreInfoModel::getBase();
+		$link = base_url() . '/verify/' . (int) $account->id . '/' . $account->verifyToken();
+		$body = MailLibrary::card($info->store_name, 'Confirm Your Email',
+			'Thanks for making an account. Click the button below to confirm this is your email address.<br><br><span style="font-size:12px;opacity:0.65;">If you did not sign up, ignore this email.</span>',
+			'Confirm Email', $link);
+
+		$mail = new MailLibrary(['from_name' => $info->store_name]);
+		try {
+			$mail->send($account->email, $info->store_name . ' email confirmation', $body, true);
+		}
+		catch (Exception $e) {
+			error_log('Verify mail failed: ' . $e->getMessage());
+		}
 	}
 
 	public function signout() {

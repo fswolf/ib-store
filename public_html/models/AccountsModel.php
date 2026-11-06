@@ -162,6 +162,28 @@ class AccountsModel {
 		return false;
 	}
 
+	// -- Email verification -- //
+	// the sign up mail's token: an hmac of the id and email keyed on the password hash, so nothing extra is stored.
+	// a link stops working once the email or password changes
+	public function verifyToken() {
+		return hash_hmac('sha256', $this->id . '|' . $this->email, (string) $this->password);
+	}
+
+	// the account a confirm link belongs to, flagged verified. false when the link does not match.
+	// an account without a password has no key to sign with, so it never matches
+	public static function verify($id, $token) {
+		$account = self::getAccount((int) $id);
+		if (!$account || (string) $account->password === '' || !hash_equals($account->verifyToken(), (string) $token)) return false;
+		if ($account->verified) return $account;
+
+		$db = new DatabaseLibrary();
+		$update = $db->pdo->prepare('UPDATE accounts SET `verified` = 1 WHERE `id` = :id');
+		$update->bindValue(':id', (int) $account->id, PDO::PARAM_INT);
+		$update->execute();
+		$account->verified = 1;
+		return $account;
+	}
+
 	// -- Admin lists -- //
 	// shape matches what tablesorter.js posts: rows, offset, sort, order, input
 	public static function count($search = '') {

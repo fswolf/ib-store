@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Confirm Email - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<link rel="icon" href="<?= $favicon ?? '/assets/images/bored.png' ?>">
+		<link href="/assets/css/styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header>
+		    <?php include_once __DIR__ . '/include/menu.html' ?>
+		</header>
+
+		<main class="store-main">
+			<div class="container">
+
+				<div class="auth-wrapper">
+
+				    <div class="auth-card">
+
+				        <h1>Confirm Email</h1>
+
+				        <?php if (!empty($verified)): ?>
+				        <p class="auth-subtitle">Thanks, your email address is confirmed.</p>
+				        <?php else: ?>
+				        <p class="auth-subtitle">
+				            That confirmation link is not valid. It stops working once the account's email or password changes.
+				        </p>
+				        <?php endif; ?>
+
+				        <div class="auth-footer">
+				            <a href="/">Back to the Store</a>
+				        </div>
+
+				    </div>
+
+				</div>
+
+			</div>
+		</main>
+
+		<footer>
+			<?php include_once __DIR__ . '/include/footer.html' ?>
+		</footer>
+
+		<script type="module" src="/assets/js/app.js"></script>
+	</body>
+</html>

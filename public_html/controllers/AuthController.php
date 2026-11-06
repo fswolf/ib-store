@@ -61,4 +61,12 @@ class AuthController extends BaseController {
         $this->view->template = 'reset.html';
         $this->view->render();
 	}
+
+	// /verify/@id/@token from the sign up email
+	public function verify($id, $token) {
+		$this->setGlobals();
+		$this->view->set('verified', AccountsModel::verify($id, $token) !== false);
+		$this->view->template = 'verify.html';
+		$this->view->render();
+	}
 }

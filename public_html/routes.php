@@ -24,6 +24,7 @@ Flight::route('/signout', array(new AuthController(), 'signout'));
 Flight::route('/register', array(new AuthController(), 'register'));
 Flight::route('/forgot', array(new AuthController(), 'forgot'));
 Flight::route('/reset/@token', array(new AuthController(), 'reset'));
+Flight::route('/verify/@id:[0-9]+/@token', array(new AuthController(), 'verify'));
 
 // Profile
 Flight::route('/user/settings', array(new AccountController(), 'settings'));

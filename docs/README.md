@@ -54,7 +54,7 @@ A REST app at developer.paypal.com gives a client id and secret, those go in `PA
 
 ## Accounts
 
-- Register: `/register` -> `/api/auth/register`, argon2id password, signs them in.
+- Register: `/register` -> `/api/auth/register`, argon2id password, signs them in and emails a `/verify/<id>/<token>` link that sets `verified`. The token is an hmac of the id and email keyed on the password hash, nothing is stored, and it stops working when either changes.
 - Sign in / out: `/signin`, `/signout`. One login session per account (`login_sessions` is keyed on `user_id`), `AccountsModel::resume()` checks it on every page.
 - Forgot: `/forgot` emails a link to `/reset/<token>`. Tokens are sha256 hashed in `password_resets`, last `RESET_LIFE` seconds (an hour), one live token per account. A reset also drops the account's login session.
 - Settings: `/user/settings` for username, email, password and the two addresses. Orders at `/user/orders`.
