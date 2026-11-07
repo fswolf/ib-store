@@ -95,3 +95,7 @@ The home page banner is set from the same place: upload a picture, type the head
 ## Adding a payment gateway
 
 One class in `libraries/` extending `PaymentLibrary` with `enabled()`, `start()`, `check()` and `webhook()`, one line in `PaymentLibrary::all()`, a block of defines in `config.php` and an icon in `views/cart/payment.html`. The controller, the payment page and the emails do not need to know it exists.
+
+## License
+
+iB Store is licensed under the [MIT License](LICENSE). Copyright © 2026 fswolf.
