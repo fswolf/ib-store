@@ -68,7 +68,7 @@ Product images are checked by content type (jpg, png, webp, gif, 4 MB cap in con
 
 ## Local testing
 
-`php -S 127.0.0.1:8085 -t public_html router.php` with this `router.php` next to `public_html` does what the `.htaccess` does:
+The root README's "Try it locally" has the whole recipe: database, config, and php's built in server. The server part is `php -S 127.0.0.1:8085 -t public_html router.php` with this `router.php` next to `public_html`, which does what the `.htaccess` does:
 
     <?php
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -52,6 +52,43 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 
 Everything after that is in [docs/README.md](docs/README.md): how the code hangs together, the flow of a sale, and the step by step for each payment gateway (what to create on the BTCPay, Stripe and PayPal side, which webhook events, where the ids go).
 
+## Try it locally
+
+No Apache, Redis or mail needed to look around, just PHP 8.1+ (with `pdo_mysql`, `mbstring`, `curl`, `fileinfo`) and MariaDB or MySQL. From a fresh clone:
+
+```bash
+git clone https://github.com/fswolf/ib-store && cd ib-store
+
+# a database and a user for it, then the tables and the demo catalogue
+sudo mariadb -e "CREATE DATABASE ib_store; CREATE USER 'ib_store'@'localhost' IDENTIFIED BY 'ib_store'; GRANT ALL ON ib_store.* TO 'ib_store'@'localhost';"
+mariadb -u ib_store -pib_store ib_store < ib_store.sql
+
+# config pointing at it
+cp public_html/config/config.example.php public_html/config/config.php
+sed -i "s/'DB_USER', ''/'DB_USER', 'ib_store'/; s/'DB_PASSWORD', ''/'DB_PASSWORD', 'ib_store'/; s#https://store.example.com#http://127.0.0.1:8085#" public_html/config/config.php
+
+# php's built in server, with a router that does what the .htaccess does
+cat > router.php <<'PHP'
+<?php
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if ($path !== '/' && is_file(__DIR__ . '/public_html' . $path)) return false;
+$_SERVER['DOCUMENT_ROOT'] = __DIR__ . '/public_html';
+$_SERVER['SCRIPT_NAME'] = '/index.php'; // php -S sets this to the request path, which makes Flight think the first segment is a base dir
+$_SERVER['PHP_SELF'] = '/index.php';
+chdir(__DIR__ . '/public_html');
+require __DIR__ . '/public_html/index.php';
+PHP
+php -S 127.0.0.1:8085 -t public_html router.php
+```
+
+Open http://127.0.0.1:8085, register an account, then make it the admin and open `/admin`:
+
+```bash
+mariadb -u ib_store -pib_store ib_store -e "UPDATE accounts SET is_admin = 1 WHERE email = 'you@example.com';"
+```
+
+`router.php` is in `.gitignore`, so it never ends up on a live server. Payments stay off until you fill in a gateway's keys in `config.php`.
+
 ## Mail
 
 The store sends through php `mail()`, which hands each message to the server's MTA. Whether it reaches an inbox is down to how that MTA sends, not the store, so sort it out before you sell anything: an order email is the customer's receipt, and a missing one turns into a chargeback instead of an email to you.
