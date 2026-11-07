@@ -49,8 +49,9 @@ define('BASE_URL', 'https://store.example.com');
 
 // -- Downloads -- //
 // digital products' files, outside public_html so apache cannot hand them out. a product's download field is a
-// file name in here (or a full https:// link for a file hosted elsewhere), /user/orders/<uuid>/download/<line>
-// streams it to the owner of a paid order. default is a downloads/ folder next to public_html
+// file name in here (or a full https:// link for a file hosted elsewhere), several separated by commas for a build
+// per platform. /user/orders/<uuid>/download/<line>/<n> streams them to the owner of a paid order. default is a
+// downloads/ folder next to public_html
 define('DOWNLOAD_DIR', dirname(__DIR__, 2) . '/downloads/');
 
 // -- Uploads -- //

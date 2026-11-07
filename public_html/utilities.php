@@ -90,6 +90,18 @@ function upload_url($path) {
 	return '/' . $path . (is_file($file) ? '?v=' . filemtime($file) : '');
 }
 
+// a digital line's download field split into its files: one name or link, or several separated by commas
+// (a build per platform, say). empty entries are dropped
+function download_files($value) {
+	return array_values(array_filter(array_map('trim', explode(',', (string) $value)), 'strlen'));
+}
+
+// what a download link shows: the file's name, from a link too (https://host/path/game.zip is game.zip)
+function download_name($file) {
+	$name = basename((string) parse_url($file, PHP_URL_PATH));
+	return $name !== '' ? $name : $file;
+}
+
 // a digital product's file inside DOWNLOAD_DIR, false when it is missing or the name tries to climb out of the
 // folder. values from before the move (/downloads/file.zip) still work, the leading folder is dropped
 function download_path($name) {

@@ -42,10 +42,11 @@ class AccountController extends BaseController {
         $this->view->render();
     }
 
-    // /user/orders/@uuid/download/@item : a digital line's file, for the order's owner (or an admin) once it is paid.
-    // files sit in DOWNLOAD_DIR outside public_html so this is the only way to them. a full url (a file hosted
-    // somewhere else) is a redirect, that host decides who gets in
-    public function download($uuid, $item) {
+    // /user/orders/@uuid/download/@item/@number : a digital line's file, for the order's owner (or an admin) once it
+    // is paid. a line with several files (comma separated, a build per platform say) picks one by its number, counted
+    // from 1, no number is the first. files sit in DOWNLOAD_DIR outside public_html so this is the only way to them.
+    // a full url (a file hosted somewhere else) is a redirect, that host decides who gets in
+    public function download($uuid, $item, $number = null) {
         $this->requireLogin();
 
         $order = OrdersModel::getByUuid($uuid);
@@ -58,19 +59,21 @@ class AccountController extends BaseController {
         foreach ($order->getItems() as $row) {
             if ((int) $row['id'] === (int) $item && $row['digital'] && $row['download_url']) $line = $row;
         }
-        if (!$line) {
+        $files = $line ? download_files($line['download_url']) : array();
+        $wanted = $files[max((int) $number, 1) - 1] ?? null;
+        if (!$wanted) {
             Flight::redirect('/404');
             return;
         }
 
-        if (preg_match('#^https?://#i', $line['download_url'])) {
-            Flight::redirect($line['download_url']);
+        if (preg_match('#^https?://#i', $wanted)) {
+            Flight::redirect($wanted);
             return;
         }
 
-        $file = download_path($line['download_url']);
+        $file = download_path($wanted);
         if (!$file) {
-            error_log('Download missing for order ' . $order->uuid . ': ' . $line['download_url']);
+            error_log('Download missing for order ' . $order->uuid . ': ' . $wanted);
             Flight::redirect('/404');
             return;
         }

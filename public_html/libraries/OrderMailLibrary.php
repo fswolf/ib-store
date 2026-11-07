@@ -83,12 +83,20 @@ class OrderMailLibrary {
 		return $lines;
 	}
 
-	// download links for digital lines, once the order is paid
+	// download links for digital lines, once the order is paid. one file links the item's name, several link each
+	// file by its name (Download Vibe City: game-x64.zip · game-mac.dmg)
 	private function downloads() {
 		if (!$this->order->downloadsReady()) return '';
 		$out = '';
 		foreach ($this->order->items as $item) {
-			if ($item['digital'] && $item['download_url']) $out .= '<br>Download: <a href="' . htmlspecialchars($this->link . '/download/' . (int) $item['id']) . '" style="color:#4f46e5">' . htmlspecialchars($item['name']) . '</a>';
+			$files = $item['digital'] ? download_files($item['download_url']) : array();
+			if (!$files) continue;
+			$links = array();
+			foreach ($files as $n => $file) {
+				$label = count($files) > 1 ? download_name($file) : $item['name'];
+				$links[] = '<a href="' . htmlspecialchars($this->link . '/download/' . (int) $item['id'] . '/' . ($n + 1)) . '" style="color:#4f46e5">' . htmlspecialchars($label) . '</a>';
+			}
+			$out .= '<br>Download' . (count($files) > 1 ? ' ' . htmlspecialchars($item['name']) : '') . ': ' . implode(' &middot; ', $links);
 		}
 		return $out;
 	}

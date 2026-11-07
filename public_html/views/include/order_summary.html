@@ -47,9 +47,12 @@
             <td>
                 <?= htmlspecialchars($item['name']) ?>
                 <?php if ($item['sku']): ?><small class="order-sku"><?= htmlspecialchars($item['sku']) ?></small><?php endif; ?>
-                <?php if ($item['digital']): ?>
-                    <?php if ($order->downloadsReady() && $item['download_url']): ?>
-                    <br><a class="download-link" href="/user/orders/<?= htmlspecialchars($order->uuid) ?>/download/<?= (int) $item['id'] ?>" rel="noopener">Download</a>
+                <?php if ($item['digital']): $files = download_files($item['download_url']); ?>
+                    <?php if ($order->downloadsReady() && $files): ?>
+                    <br>
+                    <?php foreach ($files as $n => $file): ?>
+                    <?= $n ? ' &middot; ' : '' ?><a class="download-link" href="/user/orders/<?= htmlspecialchars($order->uuid) ?>/download/<?= (int) $item['id'] ?>/<?= $n + 1 ?>" rel="noopener"><?= count($files) > 1 ? htmlspecialchars(download_name($file)) : 'Download' ?></a>
+                    <?php endforeach; ?>
                     <?php else: ?>
                     <br><small class="order-sku">Download available once paid</small>
                     <?php endif; ?>
