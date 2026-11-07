@@ -2377,6 +2377,26 @@ footer p {
     color: #b91c1c;
 }
 
+/* the file list under a digital product's description */
+.product-files {
+    margin-bottom: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.product-files strong {
+    color: var(--text-heading);
+}
+
+.product-files ul {
+    margin-top: 0.25rem;
+}
+
+.product-files li {
+    padding: 2px 0;
+    font-size: 0.9rem;
+}
+
 .add-cart-btn:disabled,
 .product-card button:disabled,
 .checkout-btn:disabled,

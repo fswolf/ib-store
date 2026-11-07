@@ -71,6 +71,19 @@
 		                    <p class="product-nodesc">No description yet.</p>
 		                    <?php endif; ?>
 
+		                    <?php $files = $product->digital ? download_files($product->download_url) : array(); ?>
+		                    <?php if ($files): ?>
+		                    <!-- what a digital product hands out once paid: file names only, never the paths or links -->
+		                    <div class="product-files">
+		                        <strong>Included downloads</strong>
+		                        <ul>
+		                            <?php foreach ($files as $file): ?>
+		                            <li><?= htmlspecialchars(download_name($file)) ?></li>
+		                            <?php endforeach; ?>
+		                        </ul>
+		                    </div>
+		                    <?php endif; ?>
+
 		                    <?php if (!$product->active): ?>
 		                    <p class="product-inactive">This item is hidden from the store (admin preview).</p>
 		                    <?php endif; ?>
