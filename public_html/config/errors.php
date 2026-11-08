@@ -4,7 +4,7 @@ Flight::map('notFound', function() {
 });
 
 // Catch PHP errors and fatals
-/*set_error_handler(function($errno, $errstr, $errfile, $errline) {
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
     throw new Exception("Error [$errno]: $errstr in $errfile on line $errline");
 });
 
@@ -22,6 +22,6 @@ register_shutdown_function(function() {
 // Flight error map as a backup
 Flight::map('error', function(Exception $ex) {
     Flight::redirect('/500');
-});*/
+});
 
 ?>
