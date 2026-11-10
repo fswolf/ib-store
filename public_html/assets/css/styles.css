@@ -2298,6 +2298,16 @@ footer p {
     opacity: 1;
 }
 
+/* fullscreen and side by side sit over the page, the menu bar (.top-nav, z-index 998) included */
+#product-form .EasyMDEContainer .CodeMirror-fullscreen,
+#product-form .EasyMDEContainer .editor-preview-side {
+    z-index: 1001;
+}
+
+#product-form .EasyMDEContainer .editor-toolbar.fullscreen {
+    z-index: 1002;
+}
+
 #product-form .EasyMDEContainer .editor-toolbar.fullscreen::before,
 #product-form .EasyMDEContainer .editor-toolbar.fullscreen::after {
     display: none;

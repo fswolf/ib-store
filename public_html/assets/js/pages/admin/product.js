@@ -77,13 +77,15 @@ export default class AdminProduct {
         this.editor = new MarkdownEditor({ element: this.form.elements.description, preview: (text, el) => this.preview(text, el) });
     }
 
-    // side by side asks on every keystroke, so wait for a pause in the typing
+    // side by side asks on every keystroke, so wait for a pause in the typing. an answer that comes back after a
+    // newer request went out is dropped, so a slow one never puts older text over newer
     preview(text, el) {
         clearTimeout(this.preview_wait);
         this.preview_wait = setTimeout(async () => {
+            const asked = this.preview_asked = (this.preview_asked ?? 0) + 1;
             const result = await this.api.post(`${this.endpoint}/preview`, { text, csrf_token: this.csrf() });
             const data = result.data ?? result.raw;
-            if (data?.success) el.innerHTML = data.html;
+            if (data?.success && asked === this.preview_asked) el.innerHTML = data.html;
         }, 250);
     }
 

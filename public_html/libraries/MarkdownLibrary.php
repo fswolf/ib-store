@@ -36,7 +36,7 @@ class MarkdownLibrary {
 		if (!$type || !$lines) return '';
 		if ($type === 'hr') return '<hr>';
 		if ($type === 'p') return '<p>' . implode("<br>\n", $lines) . '</p>';
-		if ($type === 'blockquote') return '<blockquote><p>' . implode("<br>\n", array_filter($lines, 'strlen')) . '</p></blockquote>';
+		if ($type === 'blockquote') return ($lines = array_filter($lines, 'strlen')) ? '<blockquote><p>' . implode("<br>\n", $lines) . '</p></blockquote>' : '';
 		if ($type === 'ul') return '<ul><li>' . implode('</li><li>', $lines) . '</li></ul>';
 		if ($type === 'ol') return '<ol' . ($start > 1 ? ' start="' . $start . '"' : '') . '><li>' . implode('</li><li>', $lines) . '</li></ol>';
 		return "<$type>" . $lines[0] . "</$type>";
