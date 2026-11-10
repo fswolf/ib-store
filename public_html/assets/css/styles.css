@@ -3084,6 +3084,62 @@ a.stat-card:hover {
     flex-wrap: wrap;
 }
 
+/* admin product images: one dashed box to click or drop files on. the real picker sits hidden inside, the label opens it */
+.image-drop {
+    position: relative;
+}
+
+.image-drop input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.image-drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 1.75rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-surface-alt);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.image-drop-zone strong {
+    color: var(--text-heading);
+}
+
+.image-drop-zone .form-hint {
+    margin: 0;
+}
+
+.image-drop-zone:hover,
+.image-drop-zone.over,
+.image-drop:focus-within .image-drop-zone {
+    border-color: var(--accent);
+    background: rgba(var(--accent-glow), .08);
+}
+
+.image-drop-zone.busy {
+    cursor: progress;
+    opacity: .7;
+}
+
+.image-drop-status {
+    font-weight: 600;
+    color: var(--focus-color);
+}
+
+.image-drop-status:empty {
+    display: none;
+}
+
 
 .order-grid {
     display: grid;

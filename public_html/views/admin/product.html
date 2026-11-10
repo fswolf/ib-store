@@ -134,7 +134,7 @@
 
 				        <section class="admin-section">
 				            <h2>Images</h2>
-				            <p class="form-hint">The first image is the one on the cards. Cards are 16 by 9, so a wide picture fills the box best, around 1200 by 675; a square or tall one shows with space either side. jpg, png, webp or gif, up to <?= round(ITEM_IMAGE_MAX / 1024 / 1024) ?> MB.</p>
+				            <p class="form-hint">The first image is the one on the cards. Cards are 16 by 9, so a wide picture fills the box best, around 1200 by 675; a square or tall one shows with space either side.</p>
 
 				            <div id="image-list" class="image-list">
 				                <?php foreach ($images as $image): ?>
@@ -148,11 +148,16 @@
 				                <?php endforeach; ?>
 				            </div>
 
-				            <form id="image-form" class="image-upload">
+				            <!-- admin/product.js sends each picked or dropped image on its own to /api/admin/products/image, multipart -->
+				            <form id="image-form" class="image-drop">
 				                <input type="hidden" name="product_id" value="<?= (int) $product->id ?>">
 				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-				                <input id="image-file" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
-				                <button type="submit" class="btn">Upload Image</button>
+				                <input id="image-file" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+				                <label for="image-file" class="image-drop-zone" id="image-drop">
+				                    <strong>Drop images here</strong> or click to pick them, several at once is fine
+				                    <span class="form-hint">jpg, png, webp or gif, up to <?= round(ITEM_IMAGE_MAX / 1024 / 1024) ?> MB each</span>
+				                    <span class="image-drop-status" id="image-status" role="status"></span>
+				                </label>
 				            </form>
 				        </section>
 				        <?php else: ?>

@@ -56,12 +56,13 @@ export default class AdminProduct {
             this.handle(result, (data) => this.key_counts(data));
         });
 
-        // each upload adds a card to the list, no reload
+        // images picked or dropped on the box go up one at a time, each adds a card to the list, no reload
         this.uploader = new FileUpload({
             form: "image-form",
             endpoint: `${this.endpoint}/image`,
             onDone: (data) => document.getElementById('image-list').append(this.card(data.image)),
         });
+        this.drop_zone();
 
         document.getElementById('image-list')?.addEventListener('click', (e) => {
             const button = e.target.closest('button');
@@ -69,6 +70,31 @@ export default class AdminProduct {
             const card = button.closest('.image-card');
             if (button.classList.contains('image-delete')) this.image('delete', card);
             if (button.classList.contains('image-main')) this.image('main', card);
+        });
+    }
+
+    // the image box: click to pick, or drag files over it. it lights up while files hover and says how far along it is
+    drop_zone() {
+        const zone = document.getElementById('image-drop');
+        const input = document.getElementById('image-file');
+        if (!zone || !input) return;
+        const status = document.getElementById('image-status');
+        const send = (files) => {
+            const images = [...files].filter((f) => f.type.startsWith("image/"));
+            if (!images.length || zone.classList.contains('busy')) return;
+            zone.classList.add('busy');
+            this.uploader.sendFiles(images, "image", (text) => status.textContent = text).finally(() => zone.classList.remove('busy'));
+        };
+
+        input.addEventListener('change', () => send(input.files));
+        ['dragenter', 'dragover'].forEach((type) => zone.addEventListener(type, (e) => {
+            e.preventDefault();
+            zone.classList.add('over');
+        }));
+        ['dragleave', 'drop'].forEach((type) => zone.addEventListener(type, () => zone.classList.remove('over')));
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            send(e.dataTransfer.files);
         });
     }
 
