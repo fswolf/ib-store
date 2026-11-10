@@ -1,4 +1,5 @@
 import ApiClient from "../tools/api_client.js";
+import RegionSelect from "../tools/region_select.js";
 
 // checkout page. billing and shipping are two forms, place order posts them both as one json body
 export default class Shipping {
@@ -16,6 +17,9 @@ export default class Shipping {
 			console.log("form error");
 			return;
 		}
+
+		new RegionSelect({ country: "billing-country", province: "billing-province" });
+		if (this.shipping) new RegionSelect({ country: "shipping-country", province: "shipping-province" });
 
 		this.toggle_fields();
 		this.listen_events();

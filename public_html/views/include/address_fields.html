@@ -3,6 +3,15 @@
 	// set $prefix ('billing' / 'shipping') and $address (AddressesModel or false) before including
 	$a = !empty($address) ? $address : null;
 	$v = function($field) use ($a) { return htmlspecialchars((string) ($a->{$field} ?? '')); };
+
+	// country and province menus, the lists are in config/regions.php. a country with a province list gets a
+	// menu, any other a text box. region_select.js swaps the province field when the country changes
+	$regions = require __DIR__ . '/../../config/regions.php';
+	$country = trim((string) ($a->country ?? ''));
+	$province = trim((string) ($a->province ?? ''));
+	// saved before the menus were here, so match any case
+	foreach ($regions['countries'] as $name) if (strcasecmp($name, $country) === 0) $country = $name;
+	$provinces = $regions['provinces'][$country] ?? null;
 ?>
 <div class="form-grid">
 
@@ -43,7 +52,16 @@
 
     <div class="form-group">
         <label for="<?= $prefix ?>-province">Province / State</label>
+        <?php if ($provinces): ?>
+        <select id="<?= $prefix ?>-province" name="province" autocomplete="address-level1" required>
+            <option value="">Pick one</option>
+            <?php foreach ($provinces as $code => $name): ?>
+            <option<?= strcasecmp($name, $province) === 0 || strcasecmp($code, $province) === 0 ? ' selected' : '' ?>><?= htmlspecialchars($name) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <?php else: ?>
         <input id="<?= $prefix ?>-province" name="province" type="text" value="<?= $v('province') ?>" autocomplete="address-level1" required>
+        <?php endif; ?>
     </div>
 
     <div class="form-group">
@@ -53,7 +71,12 @@
 
     <div class="form-group">
         <label for="<?= $prefix ?>-country">Country</label>
-        <input id="<?= $prefix ?>-country" name="country" type="text" value="<?= $v('country') ?>" autocomplete="country-name" required>
+        <select id="<?= $prefix ?>-country" name="country" autocomplete="country-name" data-provinces="<?= htmlspecialchars(json_encode($regions['provinces'], JSON_UNESCAPED_UNICODE)) ?>" required>
+            <option value="">Pick one</option>
+            <?php foreach ($regions['countries'] as $name): ?>
+            <option<?= $name === $country ? ' selected' : '' ?>><?= htmlspecialchars($name) ?></option>
+            <?php endforeach; ?>
+        </select>
     </div>
 
 </div>

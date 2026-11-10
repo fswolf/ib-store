@@ -2191,6 +2191,13 @@ footer p {
     box-shadow: 0 0 0 3px rgba(var(--accent-glow), .15);
 }
 
+/* the address form menus sit beside plain inputs, so they take the browser's field colours like those do */
+.account-section select,
+.checkout-section select {
+    background: Field;
+    color: FieldText;
+}
+
 .form-group label small,
 .form-hint {
     font-weight: 400;

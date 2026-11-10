@@ -1,4 +1,5 @@
 import ApiForm from "../tools/api_form.js";
+import RegionSelect from "../tools/region_select.js";
 
 // account settings, four forms each posting to their own /api/account/* endpoint
 export default class Profile {
@@ -32,5 +33,8 @@ export default class Profile {
 
         this.billing = new ApiForm({ form: "billing-form", endpoint: `${endpoint}/address` });
         this.shipping = new ApiForm({ form: "shipping-form", endpoint: `${endpoint}/address` });
+
+        new RegionSelect({ country: "billing-country", province: "billing-province" });
+        new RegionSelect({ country: "shipping-country", province: "shipping-province" });
     }
 }
