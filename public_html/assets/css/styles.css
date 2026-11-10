@@ -2244,7 +2244,9 @@ footer p {
     margin-top: 1rem;
 }
 
-.form-actions .btn {
+/* .admin-section .btn further down adds a top margin for buttons under text, a row of actions is lined up by flex */
+.form-actions .btn,
+.admin-section .form-actions .btn {
     margin-top: 0;
 }
 
