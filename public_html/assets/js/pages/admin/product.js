@@ -43,15 +43,14 @@ export default class AdminProduct {
             this.handle(result, (data) => window.location.href = data.redirect);
         });
 
-        // the key pool: paste and add, upload a file of them, or take the unused ones out. reload so the count follows
-        if (document.getElementById('keys-form')) {
-            this.keys = new ApiForm({ form: "keys-form", endpoint: `${this.endpoint}/keys`, reset: true, onDone: () => this.reload() });
-        }
-        this.key_file = new FileUpload({ form: "keys-file-form", endpoint: `${this.endpoint}/keys/file`, onDone: () => this.reload() });
+        // the key pool: Add Keys sends the pasted keys and / or the picked file, Remove takes the unused ones out.
+        // both answer with the new counts, shown in place
+        this.keys = new FileUpload({ form: "keys-form", endpoint: `${this.endpoint}/keys`, busy: "Adding...", onDone: (data) => this.key_counts(data) });
+        document.getElementById('keys-form')?.addEventListener('submit', () => document.getElementById('keys-result').textContent = ""); // an error only toasts, so no stale line beside it
         document.getElementById('clear-keys')?.addEventListener('click', async () => {
             if (!confirm("Remove the unused keys? Keys already on orders stay with them.")) return;
             const result = await this.api.post(`${this.endpoint}/keys/clear`, { id: this.form.dataset.id, csrf_token: this.csrf() });
-            this.handle(result, () => this.reload());
+            this.handle(result, (data) => this.key_counts(data));
         });
 
         // each upload adds a card to the list, no reload
@@ -104,9 +103,11 @@ export default class AdminProduct {
         return div;
     }
 
-    // after the toast has had a moment
-    reload() {
-        setTimeout(() => window.location.reload(), 600);
+    // the keys section after an add or a remove: the count, what happened (stays after the toast is gone), the remove button
+    key_counts({ unused, total, message }) {
+        document.getElementById('keys-count').innerHTML = total ? `<strong>${unused.toLocaleString()}</strong> unused of ${total.toLocaleString()} added.` : "No keys yet.";
+        document.getElementById('keys-result').textContent = message ?? "";
+        document.getElementById('clear-keys').hidden = !unused;
     }
 
     handle(result, onDone) {

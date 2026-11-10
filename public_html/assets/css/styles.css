@@ -446,8 +446,7 @@ main {
     margin-bottom: 1.5rem;
 }
 
-#favicon-section .image-upload,
-#keys-section .image-upload {
+#favicon-section .image-upload {
     margin-top: 1rem;
 }
 
@@ -457,8 +456,7 @@ main {
 }
 
 #favicon-section .image-upload .btn,
-#hero-section .image-upload .btn,
-#keys-section .image-upload .btn {
+#hero-section .image-upload .btn {
     margin-top: 0; /* .admin-section .btn adds a top margin for buttons under text, this row is centred by flex instead */
 }
 
@@ -2222,6 +2220,27 @@ footer p {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.5rem;
+}
+
+/* admin product keys: the file picker under the paste box, what the last add did beside the button, remove off to the right */
+.keys-file {
+    margin-top: 0.75rem;
+}
+
+.keys-file input[type="file"] {
+    max-width: 22rem;
+}
+
+#keys-result {
+    margin: 0;
+}
+
+#clear-keys {
+    margin-left: auto;
+}
+
+#clear-keys[hidden] {
+    display: none;
 }
 
 /* admin product: the two delivery boxes sit under Digital download, tucked in close and lined up with its label text */

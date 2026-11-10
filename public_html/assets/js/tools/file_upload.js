@@ -1,13 +1,13 @@
 // A form with a file in it, posted as multipart. ApiForm goes through ApiClient, which sends json, and a file
 // needs the browser to build the body and set the boundary itself, so this is the multipart twin of ApiForm:
 // same endings (toast the message, toast the error, bounce to signin), onDone(data, form) on success.
-// The submit button is disabled while the upload runs. reset clears the form after a good upload.
+// The submit button is disabled while the upload runs, and reads busy if one is given. reset clears the form after a good upload.
 export default class FileUpload {
-    constructor({ form, endpoint, onDone = null, reset = true, signin_path = "/signin" }) {
+    constructor({ form, endpoint, onDone = null, reset = true, busy = null, signin_path = "/signin" }) {
         this.form = typeof form === "string" ? document.getElementById(form) : form;
         if (!this.form) return;
 
-        Object.assign(this, { endpoint, onDone, reset, signin_path });
+        Object.assign(this, { endpoint, onDone, reset, busy, signin_path });
         this.form.addEventListener("submit", (e) => {
             e.preventDefault();
             this.send();
@@ -16,7 +16,11 @@ export default class FileUpload {
 
     async send() {
         const button = this.form.querySelector('button[type="submit"]');
-        if (button) button.disabled = true;
+        const label = button?.textContent;
+        if (button) {
+            button.disabled = true;
+            if (this.busy) button.textContent = this.busy;
+        }
 
         let data;
         try {
@@ -26,7 +30,10 @@ export default class FileUpload {
             data = { success: false, error: "Network error." };
         }
 
-        if (button) button.disabled = false;
+        if (button) {
+            button.disabled = false;
+            button.textContent = label;
+        }
 
         if (!data?.success) {
             if (data?.signin) { window.location.href = this.signin_path; return; }

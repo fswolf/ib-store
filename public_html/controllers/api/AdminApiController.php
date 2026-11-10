@@ -68,37 +68,44 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
-            // POST {id, keys (one per line), csrf_token} adds to the product's key pool, keys/clear {id, csrf_token}
-            // takes the unused ones out. keys/file is multipart: product_id, keys (a text file, one per line), csrf_token
+            // multipart POST {product_id, keys (pasted, one per line), file (a .txt, one per line), csrf_token} adds to the
+            // product's key pool, either or both. keys/clear {id, csrf_token} as json takes the unused ones out.
+            // both answer with the pool's new {unused, total} so the page updates without a reload
             case 'keys':
-                if ($sub === 'file') {
+                if ($sub === 'clear') {
                     $this->respond(function() {
-                        $this->checkCsrf((object) $_POST);
-                        $product = ProductsModel::getProduct((int) ($_POST['product_id'] ?? 0));
+                        $data = $this->input();
+                        $this->checkCsrf($data);
+                        $product = ProductsModel::getProduct((int) ($data->id ?? 0));
                         if (!$product) throw new Exception('Product not found');
-
-                        $file = $_FILES['keys'] ?? null;
-                        if (!$file || !isset($file['error']) || is_array($file['error'])) throw new Exception('No file uploaded');
-                        if ($file['error'] === UPLOAD_ERR_INI_SIZE) throw new Exception('The file is bigger than the server takes (upload_max_filesize ' . ini_get('upload_max_filesize') . '), split it in two');
-                        if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Upload failed (code ' . $file['error'] . ')');
-                        $text = file_get_contents($file['tmp_name']);
-                        if (strpos($text, "\0") !== false || !mb_check_encoding($text, 'UTF-8')) throw new Exception('That is not a text file, save the keys as .txt one per line');
-                        return $this->keysAdded($product->id, $text);
+                        $removed = ProductKeysModel::clearUnused($product->id);
+                        return $this->keyCounts($product->id, ['message' => number_format($removed) . ' unused ' . ($removed === 1 ? 'key' : 'keys') . ' removed.']);
                     });
                     break;
                 }
 
-                $this->respond(function() use ($sub) {
-                    $data = $this->input();
-                    $this->checkCsrf($data);
-                    $product = ProductsModel::getProduct((int) ($data->id ?? 0));
+                $this->respond(function() {
+                    // php drops the whole body when it is over post_max_size, which would read as an expired form
+                    if (!$_POST && !empty($_SERVER['CONTENT_LENGTH'])) throw new Exception('That is bigger than the server takes (post_max_size ' . ini_get('post_max_size') . '), split the file');
+                    $this->checkCsrf((object) $_POST);
+                    $product = ProductsModel::getProduct((int) ($_POST['product_id'] ?? 0));
                     if (!$product) throw new Exception('Product not found');
 
-                    if ($sub === 'clear') {
-                        $removed = ProductKeysModel::clearUnused($product->id);
-                        return ['message' => $removed . ' unused ' . ($removed === 1 ? 'key' : 'keys') . ' removed.'];
+                    $text = (string) ($_POST['keys'] ?? '');
+                    $file = $_FILES['file'] ?? null;
+                    if ($file && !is_array($file['error']) && $file['error'] !== UPLOAD_ERR_NO_FILE) {
+                        if ($file['error'] === UPLOAD_ERR_INI_SIZE) throw new Exception('The file is bigger than the server takes (upload_max_filesize ' . ini_get('upload_max_filesize') . '), split it in two');
+                        if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Upload failed (code ' . $file['error'] . ')');
+                        $contents = file_get_contents($file['tmp_name']);
+                        if (strpos($contents, "\0") !== false || !mb_check_encoding($contents, 'UTF-8')) throw new Exception('That is not a text file, save the keys as .txt one per line');
+                        $text .= "\n" . $contents;
                     }
-                    return $this->keysAdded($product->id, (string) ($data->keys ?? ''));
+
+                    [$added, $twice, $already] = ProductKeysModel::add($product->id, $text);
+                    $message = number_format($added) . ' ' . ($added === 1 ? 'key' : 'keys') . ' added.';
+                    if ($already) $message .= ' ' . number_format($already) . ' already in the list.';
+                    if ($twice) $message .= ' ' . number_format($twice) . ' listed twice.';
+                    return $this->keyCounts($product->id, ['message' => $message]);
                 });
                 break;
 
@@ -135,10 +142,10 @@ class AdminApiController extends ApiController {
         }
     }
 
-    // the pasted list and the uploaded file both end here
-    private function keysAdded($product_id, $text) {
-        [$added, $skipped] = ProductKeysModel::add($product_id, $text);
-        return ['message' => $added . ' added' . ($skipped ? ', ' . $skipped . ' skipped as repeats' : '') . '.'];
+    // the key pool's counts added to an answer, for the keys section to show
+    private function keyCounts($product_id, $result) {
+        [$unused, $total] = ProductKeysModel::counts($product_id);
+        return $result + ['unused' => $unused, 'total' => $total];
     }
 
     // checks type by content not extension, names the file after the product slug

@@ -5,13 +5,13 @@
 // products.keys_left keeps the unused count for the cards and the buy button. whether a product hands keys out at
 // all is its Digital key box (products.use_keys), so a pool can sit there while it is off
 class ProductKeysModel {
-	// a pasted list or a text file, one key per line. returns [added, skipped], a key already in this product's pool or
-	// listed twice is skipped
+	// a pasted list and / or a text file, one key per line. returns [added, listed twice, already in the pool],
+	// both kinds of repeat are skipped
 	public static function add($product_id, $text) {
-		$text = preg_replace('/^\xEF\xBB\xBF/', '', (string) $text); // the mark some editors put at the start of a utf-8 file
+		$text = str_replace("\xEF\xBB\xBF", '', (string) $text); // the mark some editors put at the start of a utf-8 file
 		$lines = array_filter(array_map('trim', preg_split('/\R/', $text)), 'strlen');
 		$keys = array_unique($lines);
-		if (!$keys) throw new Exception('Paste at least one key');
+		if (!$keys) throw new Exception('Paste some keys or pick a file');
 		foreach ($keys as $key) {
 			if (mb_strlen($key) > 255) throw new Exception('A key is longer than 255 characters: ' . mb_substr($key, 0, 40) . '...');
 		}
@@ -35,7 +35,7 @@ class ProductKeysModel {
 			$db->pdo->rollBack();
 			throw $e;
 		}
-		return array($added, count($lines) - $added);
+		return array($added, count($lines) - count($keys), count($keys) - $added);
 	}
 
 	// holds one unused key for an order line. runs on checkout's own connection so it rolls back with the order.
