@@ -677,6 +677,33 @@ footer p {
     color: var(--text-secondary);
 }
 
+/* the description is markdown (MarkdownLibrary): lists show their bullets, unlike the files list above */
+.product-description ul,
+.product-description ol {
+    margin: 0 0 1rem;
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.product-description ul {
+    list-style: disc;
+}
+
+.product-description li {
+    padding: 0;
+}
+
+.product-description h3,
+.product-description h4 {
+    margin: 1.25rem 0 0.5rem;
+    color: var(--text-heading);
+}
+
+.product-description a {
+    color: var(--focus-color);
+}
+
 .product-condition {
     display: inline-block;
 
@@ -2220,6 +2247,30 @@ footer p {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.5rem;
+}
+
+/* admin product: the markdown buttons over the description */
+.md-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.4rem;
+}
+
+.md-toolbar button {
+    padding: 0.25rem 0.6rem;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.md-toolbar button:hover {
+    color: var(--text-heading);
+    border-color: var(--accent);
 }
 
 /* admin product keys: the file picker under the paste box, what the last add did beside the button, remove off to the right */

@@ -66,7 +66,7 @@
 							<?php endif; ?>
 
 							<?php if (!empty($product->description)): ?>
-		                    <p><?= nl2br(htmlspecialchars($product->description)) ?></p>
+		                    <div class="product-description"><?= MarkdownLibrary::render($product->description) ?></div>
 		                    <?php else: ?>
 		                    <p class="product-nodesc">No description yet.</p>
 		                    <?php endif; ?>
