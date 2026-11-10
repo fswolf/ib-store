@@ -446,7 +446,8 @@ main {
     margin-bottom: 1.5rem;
 }
 
-#favicon-section .image-upload {
+#favicon-section .image-upload,
+#keys-section .image-upload {
     margin-top: 1rem;
 }
 
@@ -456,7 +457,8 @@ main {
 }
 
 #favicon-section .image-upload .btn,
-#hero-section .image-upload .btn {
+#hero-section .image-upload .btn,
+#keys-section .image-upload .btn {
     margin-top: 0; /* .admin-section .btn adds a top margin for buttons under text, this row is centred by flex instead */
 }
 

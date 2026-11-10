@@ -103,7 +103,7 @@
 				        <?php if ($product->id): [$keys_unused, $keys_total] = $keys; ?>
 				        <section class="admin-section" id="keys-section">
 				            <h2>Keys</h2>
-				            <p class="form-hint">Handed out while Digital key is ticked above: itch.io download keys, Steam keys or any other code, one per order once it is paid. Paste them one per line, a key already in the list is skipped. The product shows sold out when they run out. Unticking Digital key keeps the list here for later.</p>
+				            <p class="form-hint">Handed out while Digital key is ticked above: itch.io download keys, Steam keys or any other code, one per order once it is paid. Paste them one per line, or for a long list upload a .txt file with one per line. A key already in the list is skipped. The product shows sold out when they run out. Unticking Digital key keeps the list here for later.</p>
 				            <p class="form-hint"><?= $keys_total ? '<strong>' . $keys_unused . '</strong> unused of ' . $keys_total . ' added.' : 'No keys yet.' ?></p>
 
 				            <!-- admin/product.js posts this to /api/admin/products/keys -->
@@ -118,6 +118,14 @@
 				                    <button type="button" id="clear-keys" class="btn-danger">Remove Unused Keys</button>
 				                    <?php endif; ?>
 				                </div>
+				            </form>
+
+				            <!-- multipart, admin/product.js posts this to /api/admin/products/keys/file -->
+				            <form id="keys-file-form" class="image-upload">
+				                <input type="hidden" name="product_id" value="<?= (int) $product->id ?>">
+				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+				                <input name="keys" type="file" accept=".txt,text/plain" required>
+				                <button type="submit" class="btn">Upload Key File</button>
 				            </form>
 				        </section>
 

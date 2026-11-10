@@ -43,10 +43,11 @@ export default class AdminProduct {
             this.handle(result, (data) => window.location.href = data.redirect);
         });
 
-        // the key pool: paste and add, or take the unused ones out. reload so the count follows
+        // the key pool: paste and add, upload a file of them, or take the unused ones out. reload so the count follows
         if (document.getElementById('keys-form')) {
             this.keys = new ApiForm({ form: "keys-form", endpoint: `${this.endpoint}/keys`, reset: true, onDone: () => this.reload() });
         }
+        this.key_file = new FileUpload({ form: "keys-file-form", endpoint: `${this.endpoint}/keys/file`, onDone: () => this.reload() });
         document.getElementById('clear-keys')?.addEventListener('click', async () => {
             if (!confirm("Remove the unused keys? Keys already on orders stay with them.")) return;
             const result = await this.api.post(`${this.endpoint}/keys/clear`, { id: this.form.dataset.id, csrf_token: this.csrf() });
