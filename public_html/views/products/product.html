@@ -71,7 +71,7 @@
 		                    <p class="product-nodesc">No description yet.</p>
 		                    <?php endif; ?>
 
-		                    <?php $files = $product->digital ? download_files($product->download_url) : array(); ?>
+		                    <?php $files = $product->digital && $product->use_files ? download_files($product->download_url) : array(); ?>
 		                    <?php if ($files): ?>
 		                    <!-- what a digital product hands out once paid: file names only, never the paths or links -->
 		                    <div class="product-files">

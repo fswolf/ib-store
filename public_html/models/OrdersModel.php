@@ -117,10 +117,10 @@ class OrdersModel {
 					':price' => $item->product->price,
 					':qty' => (int) $item->qty,
 					':digital' => (int) $item->product->digital,
-					':download_url' => $item->product->digital ? $item->product->download_url : null,
+					':download_url' => $item->product->digital && $item->product->use_files ? $item->product->download_url : null,
 				));
-				// a product with keys holds one for this line now, the same way physical stock comes off below
-				if ($item->product->digital && $item->product->keys_left !== null) {
+				// a product handing out keys holds one for this line now, the same way physical stock comes off below
+				if ($item->product->digital && $item->product->use_keys) {
 					if (!ProductKeysModel::claim($db->pdo, $item->product->id, $db->pdo->lastInsertId())) throw new Exception($item->product->name . ' just sold out');
 				}
 				// physical stock comes off now so two people cannot buy the last one. a cancelled order puts it back.

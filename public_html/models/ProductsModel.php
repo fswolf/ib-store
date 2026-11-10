@@ -12,7 +12,9 @@ class ProductsModel {
 	public $stock; 	
 	public $digital; 	
 	public $download_url; 	
-	public $keys_left; // unused keys in product_keys, null when the product has none (see ProductKeysModel)
+	public $keys_left; // unused keys in product_keys, kept by ProductKeysModel
+	public $use_files; // digital: hand out the download files once paid
+	public $use_keys;  // digital: hand out a key once paid, sold out when none are left
 	public $active; 	
 	public $newest; 	
 	public $featured; 	
@@ -26,7 +28,7 @@ class ProductsModel {
 
 	// -- Admin forms -- //
 	// the columns a form is allowed to fill
-	const FIELDS = array('category_id', 'sku', 'name', 'slug', 'con', 'description', 'price', 'stock', 'digital', 'download_url', 'active', 'newest', 'featured', 'badge');
+	const FIELDS = array('category_id', 'sku', 'name', 'slug', 'con', 'description', 'price', 'stock', 'digital', 'download_url', 'use_files', 'use_keys', 'active', 'newest', 'featured', 'badge');
 
 	public function __construct($properties = []) {
 		foreach($properties as $key => $value) $this->{$key} = $value;
@@ -219,6 +221,10 @@ class ProductsModel {
 		$this->featured = !empty($data->featured) ? 1 : 0;
 		$badge = (int) ($data->badge ?? 0);
 		$this->badge = in_array($badge, array(0, 1, 2, 3, 4)) ? $badge : 0;
+		// what a digital product hands out, the two boxes under Digital download
+		$this->use_files = !empty($data->use_files) ? 1 : 0;
+		$this->use_keys = !empty($data->use_keys) ? 1 : 0;
+		if ($this->digital && !$this->use_files && !$this->use_keys) throw new Exception('Tick Download files, Digital key or both, or the buyer gets nothing');
 		return $this;
 	}
 
@@ -233,20 +239,21 @@ class ProductsModel {
 			'price' => $this->price,
 			'stock' => (int) $this->stock,
 			'digital' => (int) $this->digital,
-			'keys_left' => $this->keys_left === null ? null : (int) $this->keys_left,
+			'use_keys' => (int) $this->use_keys,
+			'keys_left' => (int) $this->keys_left,
 			'badge' => (int) $this->badge,
 		);
 	}
 
 	// can it go in a cart: in stock and not tagged coming soon. digital is always in stock, unless it hands out keys
-	// and they ran out. the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
+	// (Digital key ticked) and they ran out. the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
 	public function buyable() {
 		return (int) $this->badge !== 4 && ($this->digital ? !$this->soldOut() : $this->stock > 0);
 	}
 
-	// a digital product with keys and none left
+	// a digital product that hands out keys and has none left
 	public function soldOut() {
-		return $this->keys_left !== null && (int) $this->keys_left < 1;
+		return $this->use_keys && (int) $this->keys_left < 1;
 	}
 
 	// insert when there is no id yet, update otherwise. slug and sku are unique in the table so the
@@ -268,7 +275,7 @@ class ProductsModel {
 		foreach (self::FIELDS as $field) {
 			$value = $this->{$field};
 			if ($value === null) $query->bindValue(":$field", null, PDO::PARAM_NULL);
-			elseif (in_array($field, array('category_id', 'con', 'stock', 'digital', 'active', 'newest', 'featured', 'badge'))) $query->bindValue(":$field", (int) $value, PDO::PARAM_INT);
+			elseif (in_array($field, array('category_id', 'con', 'stock', 'digital', 'use_files', 'use_keys', 'active', 'newest', 'featured', 'badge'))) $query->bindValue(":$field", (int) $value, PDO::PARAM_INT);
 			else $query->bindValue(":$field", (string) $value, PDO::PARAM_STR);
 		}
 

@@ -73,6 +73,13 @@
 				                    <label><input id="digital" name="digital" type="checkbox" value="1"<?= $product->digital ? ' checked' : '' ?>> Digital download (no shipping)</label>
 				                </div>
 
+				                <!-- what a digital product hands out once paid, admin/product.js shows the matching sections -->
+				                <div class="form-group check-group delivery-group" id="delivery-group">
+				                    <span class="delivery-title">Hands out once paid:</span>
+				                    <label><input id="use_files" name="use_files" type="checkbox" value="1"<?= $product->use_files ? ' checked' : '' ?>> Download files</label>
+				                    <label><input id="use_keys" name="use_keys" type="checkbox" value="1"<?= $product->use_keys ? ' checked' : '' ?>> Digital key</label>
+				                </div>
+
 				                <div class="form-group full-width" id="download-group">
 				                    <label for="download_url">Download <small>(file name in the downloads folder or a full https:// link, several separated by commas, handed out once the order is paid)</small></label>
 				                    <input id="download_url" name="download_url" type="text" value="<?= htmlspecialchars($product->download_url ?? '') ?>" maxlength="255" placeholder="file.zip or https://...">
@@ -96,7 +103,7 @@
 				        <?php if ($product->id): [$keys_unused, $keys_total] = $keys; ?>
 				        <section class="admin-section" id="keys-section">
 				            <h2>Keys</h2>
-				            <p class="form-hint">For a digital product: itch.io download keys, Steam keys or any other code, one handed out per order once it is paid. Paste them one per line, a key already in the list is skipped. Keys and the download files above work together, fill in either one or both. With keys, the product shows sold out when they run out.</p>
+				            <p class="form-hint">Handed out while Digital key is ticked above: itch.io download keys, Steam keys or any other code, one per order once it is paid. Paste them one per line, a key already in the list is skipped. The product shows sold out when they run out. Unticking Digital key keeps the list here for later.</p>
 				            <p class="form-hint"><?= $keys_total ? '<strong>' . $keys_unused . '</strong> unused of ' . $keys_total . ' added.' : 'No keys yet.' ?></p>
 
 				            <!-- admin/product.js posts this to /api/admin/products/keys -->

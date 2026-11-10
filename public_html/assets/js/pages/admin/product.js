@@ -25,8 +25,8 @@ export default class AdminProduct {
     }
 
     listen() {
-        const digital = document.getElementById('digital');
-        digital?.addEventListener('change', () => this.toggle_digital());
+        // digital and its two delivery boxes decide which sections show
+        ['digital', 'use_files', 'use_keys'].forEach((id) => document.getElementById(id)?.addEventListener('change', () => this.toggle_digital()));
 
         // slug from the name until someone types their own
         const name = this.form.elements.name;
@@ -69,12 +69,13 @@ export default class AdminProduct {
         });
     }
 
+    // the delivery boxes show under digital, the download field and the key pool under their box
     toggle_digital() {
-        const digital = document.getElementById('digital')?.checked;
-        const group = document.getElementById('download-group');
-        if (group) group.style.display = digital ? '' : 'none';
-        const keys = document.getElementById('keys-section');
-        if (keys) keys.style.display = digital ? '' : 'none';
+        const digital = !!document.getElementById('digital')?.checked;
+        const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+        show('delivery-group', digital);
+        show('download-group', digital && document.getElementById('use_files')?.checked);
+        show('keys-section', digital && document.getElementById('use_keys')?.checked);
         // a download has no stock and no condition
         this.form.elements.stock.disabled = !!digital;
         this.form.elements.con.disabled = !!digital;

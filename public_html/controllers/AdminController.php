@@ -29,7 +29,7 @@ class AdminController extends BaseController {
     public function product($id = null) {
         $this->page('product.html', $id ? 'Edit Product' : 'New Product');
 
-        $product = $id ? ProductsModel::getProduct($id) : new ProductsModel(array('active' => 1, 'con' => 0, 'badge' => 0, 'stock' => 0, 'price' => '0.00'));
+        $product = $id ? ProductsModel::getProduct($id) : new ProductsModel(array('active' => 1, 'con' => 0, 'badge' => 0, 'stock' => 0, 'price' => '0.00', 'use_files' => 1));
         if (!$product) {
             Flight::redirect('/admin/products');
             return;

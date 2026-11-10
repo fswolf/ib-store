@@ -2,7 +2,8 @@
 // keys handed out with a digital product: itch.io download key links, steam keys, any code. pasted in on the admin
 // product page, one is held for each order line at checkout (like physical stock, so two buyers never get the same
 // one), shown to the buyer once the order is paid, and put back when the order is cancelled before it was paid.
-// products.keys_left keeps the unused count for the cards and the buy button, null when the product has no keys
+// products.keys_left keeps the unused count for the cards and the buy button. whether a product hands keys out at
+// all is its Digital key box (products.use_keys), so a pool can sit there while it is off
 class ProductKeysModel {
 	// a pasted list, one key per line. returns [added, skipped], a key already in this product's pool is skipped
 	public static function add($product_id, $text) {
@@ -60,7 +61,7 @@ class ProductKeysModel {
 			FROM `order_items` i
 			JOIN `products` p ON p.id = i.product_id
 			LEFT JOIN `product_keys` k ON k.order_item_id = i.id
-			WHERE i.order_id = :order_id AND i.digital = 1 AND p.keys_left IS NOT NULL AND k.id IS NULL');
+			WHERE i.order_id = :order_id AND i.digital = 1 AND p.use_keys = 1 AND k.id IS NULL');
 		$select->bindValue(':order_id', (int) $order_id, PDO::PARAM_INT);
 		$select->execute();
 		$lines = $select->fetchAll();
@@ -104,26 +105,22 @@ class ProductKeysModel {
 		return array((int) $row['unused'], (int) $row['total']);
 	}
 
-	// takes the unused keys out (a wrong paste, or to stop selling keys). keys already on orders stay with them, and
-	// the product goes back to no keys at all (keys_left null), so it sells again on its download files alone
+	// takes the unused keys out, a wrong paste say. keys already on orders stay with them. to stop handing keys out
+	// without losing the pool, untick Digital key on the product instead
 	public static function clearUnused($product_id) {
 		$db = new DatabaseLibrary();
 		$delete = $db->pdo->prepare('DELETE FROM `product_keys` WHERE product_id = :product_id AND order_item_id IS NULL');
 		$delete->bindValue(':product_id', (int) $product_id, PDO::PARAM_INT);
 		$delete->execute();
-
-		$update = $db->pdo->prepare('UPDATE `products` SET keys_left = NULL WHERE id = :id');
-		$update->bindValue(':id', (int) $product_id, PDO::PARAM_INT);
-		$update->execute();
+		self::recount($db->pdo, $product_id);
 		return $delete->rowCount();
 	}
 
-	// products.keys_left from the pool: null when the product never had keys, otherwise how many are unused.
-	// a product whose keys are all on orders keeps 0, so it shows sold out until more are pasted in
+	// products.keys_left from the pool: how many keys are unused
 	private static function recount($pdo, $product_id) {
 		$update = $pdo->prepare('
 			UPDATE `products` SET keys_left = (
-				SELECT IF(COUNT(*) = 0, NULL, SUM(order_item_id IS NULL)) FROM `product_keys` WHERE product_id = :product_id
+				SELECT COUNT(*) FROM `product_keys` WHERE product_id = :product_id AND order_item_id IS NULL
 			) WHERE id = :id');
 		$update->bindValue(':product_id', (int) $product_id, PDO::PARAM_INT);
 		$update->bindValue(':id', (int) $product_id, PDO::PARAM_INT);

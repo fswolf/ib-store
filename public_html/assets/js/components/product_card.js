@@ -58,9 +58,9 @@ export default class ProductCard {
     }
 
     // same rule as ProductsModel::buyable(): in stock and not coming soon. digital always is, unless it hands out
-    // keys and they ran out (keys_left is null for a product without keys)
+    // keys (use_keys) and they ran out
     inStock(product) {
-        if (Number(product.digital) === 1) return product.keys_left === null || Number(product.keys_left) > 0;
+        if (Number(product.digital) === 1) return Number(product.use_keys) !== 1 || Number(product.keys_left) > 0;
         return Number(product.stock) > 0;
     }
 
