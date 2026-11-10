@@ -2358,7 +2358,7 @@ footer p {
 }
 
 /* admin product keys: the file picker, a text link that opens the paste box under it, what the last add did beside
-   the button, remove off to the right */
+   the button */
 #keys-form {
     margin-top: 1.25rem;
 }
@@ -2381,10 +2381,6 @@ footer p {
 
 #keys-result {
     margin: 0;
-}
-
-#clear-keys {
-    margin-left: auto;
 }
 
 #clear-keys[hidden] {
@@ -2428,6 +2424,11 @@ footer p {
 .form-actions .btn,
 .admin-section .form-actions .btn {
     margin-top: 0;
+}
+
+/* the destructive button of a row (delete, remove) keeps to the right, away from save */
+.form-actions .btn-danger {
+    margin-left: auto;
 }
 
 /* the admin and account buttons, same look as Add to Cart and the card buttons */
