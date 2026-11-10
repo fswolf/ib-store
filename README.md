@@ -25,7 +25,7 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 
 - **Catalogue** with categories, product images, stock, badges (new, featured, sale) and search
 - **Cart and checkout** with flat shipping, free shipping over an amount, and a tax percent, all set from the admin panel
-- **Digital products** that skip shipping and show a download link once the order is paid
+- **Digital products** that skip shipping and hand out download links, keys (itch.io, Steam) or both once the order is paid
 - **Accounts** with argon2id passwords, password reset by email, saved billing and shipping addresses, and an order history
 - **Order emails** on checkout and on every status change (paid, shipped, complete, cancelled, refunded), through the server's own `mail()`
 - **Admin panel** for orders, products, categories, accounts and store settings, with a test email button

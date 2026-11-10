@@ -43,6 +43,16 @@ export default class AdminProduct {
             this.handle(result, (data) => window.location.href = data.redirect);
         });
 
+        // the key pool: paste and add, or take the unused ones out. reload so the count follows
+        if (document.getElementById('keys-form')) {
+            this.keys = new ApiForm({ form: "keys-form", endpoint: `${this.endpoint}/keys`, reset: true, onDone: () => this.reload() });
+        }
+        document.getElementById('clear-keys')?.addEventListener('click', async () => {
+            if (!confirm("Remove the unused keys? Keys already on orders stay with them.")) return;
+            const result = await this.api.post(`${this.endpoint}/keys/clear`, { id: this.form.dataset.id, csrf_token: this.csrf() });
+            this.handle(result, () => this.reload());
+        });
+
         // each upload adds a card to the list, no reload
         this.uploader = new FileUpload({
             form: "image-form",
@@ -63,6 +73,8 @@ export default class AdminProduct {
         const digital = document.getElementById('digital')?.checked;
         const group = document.getElementById('download-group');
         if (group) group.style.display = digital ? '' : 'none';
+        const keys = document.getElementById('keys-section');
+        if (keys) keys.style.display = digital ? '' : 'none';
         // a download has no stock and no condition
         this.form.elements.stock.disabled = !!digital;
         this.form.elements.con.disabled = !!digital;
@@ -88,6 +100,11 @@ export default class AdminProduct {
                 <button type="button" class="btn-link image-delete">Remove</button>
             </div>`;
         return div;
+    }
+
+    // after the toast has had a moment
+    reload() {
+        setTimeout(() => window.location.reload(), 600);
     }
 
     handle(result, onDone) {

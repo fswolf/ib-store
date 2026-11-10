@@ -119,6 +119,10 @@ class OrdersModel {
 					':digital' => (int) $item->product->digital,
 					':download_url' => $item->product->digital ? $item->product->download_url : null,
 				));
+				// a product with keys holds one for this line now, the same way physical stock comes off below
+				if ($item->product->digital && $item->product->keys_left !== null) {
+					if (!ProductKeysModel::claim($db->pdo, $item->product->id, $db->pdo->lastInsertId())) throw new Exception($item->product->name . ' just sold out');
+				}
 				// physical stock comes off now so two people cannot buy the last one. a cancelled order puts it back.
 				// same pdo as the inserts so it rolls back with them (every model opens its own connection)
 				if (!$item->product->digital) {
@@ -184,6 +188,11 @@ class OrdersModel {
 		$select->bindValue(':order_id', (int) $this->id, PDO::PARAM_INT);
 		$select->execute();
 		$this->items = $select->fetchAll();
+
+		// each line's keys (product_keys), empty for lines without
+		$keys = ProductKeysModel::forItems(array_column($this->items, 'id'));
+		foreach ($this->items as &$item) $item['keys'] = $keys[$item['id']] ?? array();
+		unset($item);
 		return $this->items;
 	}
 
@@ -243,8 +252,13 @@ class OrdersModel {
 		if (!in_array($status, self::STATUSES)) throw new Exception('Unknown status');
 		$db = new DatabaseLibrary();
 
-		// cancelling a pending order hands the stock back
+		// taking an order out of cancelled holds keys again for its key lines, or refuses when a product ran out
+		if ($this->status === 'cancelled' && $status !== 'cancelled') ProductKeysModel::reclaim($this->id);
+
+		// cancelling hands the stock back, and the held keys too while the order was never paid. a paid order's
+		// keys were on its page and in its email already, so they stay with it instead of going to the next buyer
 		if ($status === 'cancelled' && $this->status !== 'cancelled') {
+			if ($this->status === 'pending') ProductKeysModel::release($this->id);
 			foreach ($this->getItems() as $item) {
 				if (!$item['digital'] && $item['product_id']) {
 					$update = $db->pdo->prepare('UPDATE `products` SET stock = stock + :qty WHERE id = :id');

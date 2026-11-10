@@ -25,6 +25,7 @@ class CartLibrary {
 		$product = ProductsModel::getProduct($product_id);
 		if (!$product || !$product->active) throw new Exception('That item is not available');
 		if ((int) $product->badge === 4) throw new Exception($product->name . ' is coming soon, not for sale yet');
+		if ($product->digital && $product->soldOut()) throw new Exception($product->name . ' is sold out');
 
 		$qty = max(1, (int) $qty);
 		$have = $this->lines[$product->id] ?? 0;

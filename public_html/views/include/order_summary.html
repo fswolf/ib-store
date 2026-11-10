@@ -47,11 +47,16 @@
             <td>
                 <?= htmlspecialchars($item['name']) ?>
                 <?php if ($item['sku']): ?><small class="order-sku"><?= htmlspecialchars($item['sku']) ?></small><?php endif; ?>
-                <?php if ($item['digital']): $files = download_files($item['download_url']); ?>
-                    <?php if ($order->downloadsReady() && $files): ?>
+                <?php if ($item['digital']): $files = download_files($item['download_url']); $keys = $item['keys'] ?? array(); ?>
+                    <?php if ($order->downloadsReady() && ($files || $keys)): ?>
+                    <?php if ($files): ?>
                     <br>
                     <?php foreach ($files as $n => $file): ?>
                     <?= $n ? ' &middot; ' : '' ?><a class="download-link" href="/user/orders/<?= htmlspecialchars($order->uuid) ?>/download/<?= (int) $item['id'] ?>/<?= $n + 1 ?>" rel="noopener"><?= count($files) > 1 ? htmlspecialchars(download_name($file)) : 'Download' ?></a>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php foreach ($keys as $key): ?>
+                    <br>Key: <?php if (preg_match('#^https?://#i', $key)): ?><a class="download-link" href="<?= htmlspecialchars($key) ?>" rel="noopener">Claim your copy</a><?php else: ?><code><?= htmlspecialchars($key) ?></code><?php endif; ?>
                     <?php endforeach; ?>
                     <?php else: ?>
                     <br><small class="order-sku">Download available once paid</small>

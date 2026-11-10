@@ -57,9 +57,11 @@ export default class ProductCard {
         return `<div class="product-image-holder"></div>`;
     }
 
-    // same rule as ProductsModel::buyable(): in stock (digital always is) and not coming soon
+    // same rule as ProductsModel::buyable(): in stock and not coming soon. digital always is, unless it hands out
+    // keys and they ran out (keys_left is null for a product without keys)
     inStock(product) {
-        return Number(product.digital) === 1 || Number(product.stock) > 0;
+        if (Number(product.digital) === 1) return product.keys_left === null || Number(product.keys_left) > 0;
+        return Number(product.stock) > 0;
     }
 
     buyable(product) {
@@ -68,7 +70,8 @@ export default class ProductCard {
 
     label(product) {
         if (Number(product.badge) === 4) return "Coming Soon";
-        return this.inStock(product) ? "Add to Cart" : "Out of Stock";
+        if (this.inStock(product)) return "Add to Cart";
+        return Number(product.digital) === 1 ? "Sold Out" : "Out of Stock"; // a digital product only runs out of keys
     }
 
     // names come from the db, admin typed them, but innerHTML still wants them escaped

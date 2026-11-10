@@ -12,6 +12,7 @@ class ProductsModel {
 	public $stock; 	
 	public $digital; 	
 	public $download_url; 	
+	public $keys_left; // unused keys in product_keys, null when the product has none (see ProductKeysModel)
 	public $active; 	
 	public $newest; 	
 	public $featured; 	
@@ -232,14 +233,20 @@ class ProductsModel {
 			'price' => $this->price,
 			'stock' => (int) $this->stock,
 			'digital' => (int) $this->digital,
+			'keys_left' => $this->keys_left === null ? null : (int) $this->keys_left,
 			'badge' => (int) $this->badge,
 		);
 	}
 
-	// can it go in a cart: in stock (digital always is) and not tagged coming soon.
-	// the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
+	// can it go in a cart: in stock and not tagged coming soon. digital is always in stock, unless it hands out keys
+	// and they ran out. the badge numbers: 0 none, 1 new, 2 sale, 3 discontinued, 4 coming soon
 	public function buyable() {
-		return (int) $this->badge !== 4 && ($this->digital || $this->stock > 0);
+		return (int) $this->badge !== 4 && ($this->digital ? !$this->soldOut() : $this->stock > 0);
+	}
+
+	// a digital product with keys and none left
+	public function soldOut() {
+		return $this->keys_left !== null && (int) $this->keys_left < 1;
 	}
 
 	// insert when there is no id yet, update otherwise. slug and sku are unique in the table so the
@@ -279,7 +286,12 @@ class ProductsModel {
 
 	public static function delete($id) {
 		$db = new DatabaseLibrary();
-		// images go with it (ON DELETE CASCADE in the db), order_items keep their copy of the name and sku
+		// images go with it (ON DELETE CASCADE in the db), order_items keep their copy of the name and sku, and the
+		// keys already on orders stay so buyers keep seeing them. the unused ones go
+		$keys = $db->pdo->prepare('DELETE FROM `product_keys` WHERE product_id = :id AND order_item_id IS NULL');
+		$keys->bindValue(':id', (int) $id, PDO::PARAM_INT);
+		$keys->execute();
+
 		$unlink = $db->pdo->prepare('UPDATE `order_items` SET product_id = NULL WHERE product_id = :id');
 		$unlink->bindValue(':id', (int) $id, PDO::PARAM_INT);
 		$unlink->execute();

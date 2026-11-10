@@ -68,6 +68,24 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
+            // POST {id, keys (one per line), csrf_token} adds to the product's key pool, keys/clear {id, csrf_token}
+            // takes the unused ones out
+            case 'keys':
+                $this->respond(function() use ($sub) {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $product = ProductsModel::getProduct((int) ($data->id ?? 0));
+                    if (!$product) throw new Exception('Product not found');
+
+                    if ($sub === 'clear') {
+                        $removed = ProductKeysModel::clearUnused($product->id);
+                        return ['message' => $removed . ' unused ' . ($removed === 1 ? 'key' : 'keys') . ' removed.'];
+                    }
+                    [$added, $skipped] = ProductKeysModel::add($product->id, (string) ($data->keys ?? ''));
+                    return ['message' => $added . ' added' . ($skipped ? ', ' . $skipped . ' already in the list' : '') . '.'];
+                });
+                break;
+
             // multipart POST: product_id, image (file), csrf_token. not json like the rest
             case 'image':
                 if ($sub === 'delete' || $sub === 'main') {

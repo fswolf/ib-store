@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2026 at 07:21 AM
+-- Generation Time: Nov 10, 2026 at 08:05 AM
 -- Server version: 11.8.6-MariaDB-0+deb13u1 from Debian
 -- PHP Version: 8.4.27
 
@@ -109,7 +109,8 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`id`, `name`, `route`, `description`, `active`, `created`) VALUES
 (1, 'Hardware', 'hardware', 'used hardware', 1, '2026-06-18 23:04:14'),
-(4, 'Games', 'games', 'PC Games', 1, '2026-11-05 10:00:04');
+(4, 'PC Games', 'pc-games', 'PC Games', 1, '2026-11-05 10:00:04'),
+(5, 'Educational Games', 'ed-games', 'Education Games', 1, '2026-11-07 07:05:44');
 
 -- --------------------------------------------------------
 
@@ -221,6 +222,7 @@ CREATE TABLE `products` (
   `stock` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `digital` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = no shipping, download_url is handed out after payment',
   `download_url` varchar(255) DEFAULT NULL,
+  `keys_left` int(10) UNSIGNED DEFAULT NULL COMMENT 'unused keys in product_keys, null = the product has no keys',
   `active` tinyint(1) NOT NULL DEFAULT 1,
   `newest` tinyint(1) NOT NULL DEFAULT 0,
   `featured` tinyint(1) NOT NULL DEFAULT 0,
@@ -233,14 +235,15 @@ CREATE TABLE `products` (
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `category_id`, `sku`, `name`, `slug`, `con`, `description`, `price`, `stock`, `digital`, `download_url`, `active`, `newest`, `featured`, `badge`, `created_at`, `updated_at`) VALUES
-(1, 1, '200-222', 'Gaming Mouse', 'gaming-mouse', 2, NULL, 20.00, 100, 0, NULL, 1, 0, 1, 4, '2026-06-28 10:09:21', '2026-11-05 20:29:16'),
-(2, 1, '222-333', 'Smart Watch', 'smart-watch', 1, NULL, 22.00, 999, 0, NULL, 1, 0, 1, 4, '2026-06-29 04:27:41', '2026-11-05 20:44:10'),
-(3, 1, '333-444', 'Wireless Headphones', 'wireless-headphones', 0, NULL, 0.00, 999, 0, NULL, 1, 0, 1, 4, '2026-06-29 04:41:02', '2026-11-05 20:21:54'),
-(4, 1, '555-666', 'RGB Keyboard', 'rgn-keyboard', 0, NULL, 32.00, 999, 0, NULL, 1, 1, 0, 4, '2026-06-29 05:37:21', '2026-11-05 20:22:22'),
-(5, 1, '666-777', 'USB-C Hub', 'usb-hub', 1, NULL, 0.00, 999, 0, NULL, 1, 1, 0, 4, '2026-06-30 05:46:12', '2026-11-05 20:22:14'),
-(6, 1, '777-888', 'Desk Lamp', 'desk-lamp', 1, NULL, 44.00, 9999, 0, NULL, 1, 1, 0, 4, '2026-06-30 05:47:11', '2026-11-05 20:22:04'),
-(7, 4, 'ib-000-001', 'Vibe City', 'vibe-city', 0, 'Vibe City\n\nBuild a city. Find your vibe.\n\nEvery great city starts with one road.\n\nVibe City is an indie city builder in the spirit of SimCity 2000. You start with an empty map and a modest budget. Before long you have glowing neighborhoods, busy industrial zones, a power grid that is mostly working, and a lot of decisions to answer for. Each building is detailed in isometric pixel style. Turn up the in-game radio and watch your town come to life one block at a time.\n\nPlan it. Grow it. Live in it.\n\nLay down roads and zone homes, shops and factories, then watch citizens move in. Run power lines across valleys, drill tunnels through hills, and throw bridges over lakes. Keep the water running, the lights on and the budget out of the red. Schools, hospitals, police and fire stations keep your people safe and happy. Skip them and they will let you know.\n\nBuild a quiet, tidy little town. Or keep going until your industrial district needs its own industrial district. Nobody here is judging. Well, the citizens might be.\n\nFeatures\n\n• Zone and grow: Set up residential, commercial and industrial districts that grow and change based on your choices.\n\n• Connect everything: Lay out roads, railways, bridges and tunnels over lakes, rivers and rolling hills.\n\n• Keep it running: Manage power, water and the budget, and staff the schools, hospitals, police and fire stations your city depends on.\n\n• Give it personality: Add gardens, statues, plazas and landmarks that make the city yours.\n\n• Hit the nightlife: Step into a neon-lit nightclub to play blackjack and slots and watch the dancers. Being mayor is hard work, and you\'ve earned a break.\n\n• Curate your own gallery: Walk through art galleries and choose what goes on the walls. Your city, your collection.\n\n• Weather the unexpected: Storms roll in, fires break out, and every so often some decidedly stranger visitors show up.\n\n• Soak in the atmosphere: Enjoy detailed isometric art, a neon-accented interface, and an in-game radio for every questionable planning decision.\n\n• Mod it: Add brand new buildings made by players, complete with their own art, upkeep, mini games and even visual novels. The free Vibe City Mod Kit has everything you need to make your own.\n\nFamiliar roots, its own personality.\n\nVibe City keeps the classic city builder feeling of turning a blank map into a living place. It also gives you reasons to stop and enjoy what you\'ve built: a night at the club, a stroll through the gallery, or just watching the traffic flow at sunset.\n\nMake it yours with your own pictures\n\nGive your galleries and clubs a personal touch. Add your own images to the folders below, then restart the game to see them displayed when you visit those buildings.\n\nWindows and macOS\n\n• Gallery: Documents/Vibe City/gallery/\n\n• Clubs: Documents/Vibe City/clubs/\n\nLinux\n\n• Gallery: /home/[user]/Documents/Vibe City/gallery/\n\n• Clubs: /home/[user]/Documents/Vibe City/clubs/\n\nReplace [user] with your Linux username. These folders are created the first time you run the game.\n\nSupported formats: Galleries accept PNG, JPG and WebP. Clubs accept GIF, WebP and PNG, including animated GIFs for custom dancers.\n\nYour pictures stay in your Documents folder, so updating the game leaves your collection intact.\n\nBuild your own buildings with mods\n\nWant something the city doesn\'t have yet? Vibe City supports mods. A mod adds a brand new building to your build menu, with its own art, price and upkeep. It can also use power and water, provide jobs, and pay money back into your city. Click the building and a mod can open its own mini game, an animated scene or a whole visual novel.\n\nTo install a mod, drop its folder into the mods folder and restart the game.\n\nWindows and macOS\n\n• Mods: Documents/Vibe City/mods/\n\nLinux\n\n• Mods: /home/[user]/Documents/Vibe City/mods/\n\nEach mod lives in its own folder with a mod.json file, its building art and an icon. The modding guide (MODDING.md) is copied into your mods folder, so the basics are right there.\n\nThe Vibe City Mod Kit\n\nReady to make your own? The free Vibe City Mod Kit is on GitHub:\n\nhttps://github.com/fswolf/vibe-city-modkit\n\n• Ready-to-copy templates: a simple building, a micro arcade game, a visual novel, an animation framework, and still-picture scenes with play buttons.\n\n• VC Novel Studio: a desktop editor for writing visual novels, with scene cards, a live preview, a scene map and automatic backups.\n\n• Sprite tools: check, slice and fix your building art so it sits perfectly on the tile.\n\n• Plain-language guides for every part, from mod.json to packing and sharing your mod.\n\nCopy a template into your mods folder, start the game, and you already have a working mod to build on. The kit is MIT licensed, so your mods are yours.\n\nWant to see what a mod can do? Try Neon Brew, a cozy cafe for your city. Inside, you can play Barista Rush: serve coffee to a cast of regulars before they run out of patience, and send your takings to the city budget.\n\nYour city is waiting. Welcome to Vibe City.', 0.00, 0, 1, NULL, 1, 1, 0, 4, '2026-11-05 10:01:33', '2026-11-05 10:24:15');
+INSERT INTO `products` (`id`, `category_id`, `sku`, `name`, `slug`, `con`, `description`, `price`, `stock`, `digital`, `download_url`, `keys_left`, `active`, `newest`, `featured`, `badge`, `created_at`, `updated_at`) VALUES
+(1, 1, '200-222', 'Gaming Mouse', 'gaming-mouse', 2, 'This is a demo product listing.', 20.00, 100, 0, NULL, NULL, 1, 0, 1, 0, '2026-06-28 10:09:21', '2026-11-06 08:03:04'),
+(2, 1, '222-333', 'Smart Watch', 'smart-watch', 1, 'This is a demo product listing.', 22.00, 999, 0, NULL, NULL, 1, 0, 1, 0, '2026-06-29 04:27:41', '2026-11-06 08:03:08'),
+(3, 1, '333-444', 'Wireless Headphones', 'wireless-headphones', 0, 'This is a demo product listing.', 0.00, 999, 0, NULL, NULL, 1, 0, 1, 1, '2026-06-29 04:41:02', '2026-11-06 08:02:27'),
+(4, 1, '555-666', 'RGB Keyboard', 'rgn-keyboard', 0, 'This is a demo product listing.', 32.00, 999, 0, NULL, NULL, 1, 1, 0, 0, '2026-06-29 05:37:21', '2026-11-06 08:03:00'),
+(5, 1, '666-777', 'USB-C Hub', 'usb-hub', 1, 'This is a demo product listing.', 0.00, 999, 0, NULL, NULL, 1, 1, 0, 0, '2026-06-30 05:46:12', '2026-11-06 08:02:31'),
+(6, 1, '777-888', 'Desk Lamp', 'desk-lamp', 1, 'This is a demo product listing.', 44.00, 9999, 0, NULL, NULL, 1, 1, 0, 4, '2026-06-30 05:47:11', '2026-11-06 08:02:50'),
+(7, 4, 'ib-000-000', 'Vibe City', 'vibe-city', 0, 'Vibe City\n\nBuild a city. Find your vibe.\n\nEvery great city starts with one road.\n\nVibe City is an indie city builder in the spirit of SimCity 2000. You start with an empty map and a modest budget. Before long you have glowing neighborhoods, busy industrial zones, a power grid that is mostly working, and a lot of decisions to answer for. Each building is detailed in isometric pixel style. Turn up the in-game radio and watch your town come to life one block at a time.\n\nPlan it. Grow it. Live in it.\n\nLay down roads and zone homes, shops and factories, then watch citizens move in. Run power lines across valleys, drill tunnels through hills, and throw bridges over lakes. Keep the water running, the lights on and the budget out of the red. Schools, hospitals, police and fire stations keep your people safe and happy. Skip them and they will let you know.\n\nBuild a quiet, tidy little town. Or keep going until your industrial district needs its own industrial district. Nobody here is judging. Well, the citizens might be.\n\nFeatures\n\n• Zone and grow: Set up residential, commercial and industrial districts that grow and change based on your choices.\n\n• Connect everything: Lay out roads, railways, bridges and tunnels over lakes, rivers and rolling hills.\n\n• Keep it running: Manage power, water and the budget, and staff the schools, hospitals, police and fire stations your city depends on.\n\n• Give it personality: Add gardens, statues, plazas and landmarks that make the city yours.\n\n• Hit the nightlife: Step into a neon-lit nightclub to play blackjack and slots and watch the dancers. Being mayor is hard work, and you\'ve earned a break.\n\n• Curate your own gallery: Walk through art galleries and choose what goes on the walls. Your city, your collection.\n\n• Weather the unexpected: Storms roll in, fires break out, and every so often some decidedly stranger visitors show up.\n\n• Soak in the atmosphere: Enjoy detailed isometric art, a neon-accented interface, and an in-game radio for every questionable planning decision.\n\n• Mod it: Add brand new buildings made by players, complete with their own art, upkeep, mini games and even visual novels. The free Vibe City Mod Kit has everything you need to make your own.\n\nFamiliar roots, its own personality.\n\nVibe City keeps the classic city builder feeling of turning a blank map into a living place. It also gives you reasons to stop and enjoy what you\'ve built: a night at the club, a stroll through the gallery, or just watching the traffic flow at sunset.\n\nMake it yours with your own pictures\n\nGive your galleries and clubs a personal touch. Add your own images to the folders below, then restart the game to see them displayed when you visit those buildings.\n\nWindows and macOS\n\n• Gallery: Documents/Vibe City/gallery/\n\n• Clubs: Documents/Vibe City/clubs/\n\nLinux\n\n• Gallery: /home/[user]/Documents/Vibe City/gallery/\n\n• Clubs: /home/[user]/Documents/Vibe City/clubs/\n\nReplace [user] with your Linux username. These folders are created the first time you run the game.\n\nSupported formats: Galleries accept PNG, JPG and WebP. Clubs accept GIF, WebP and PNG, including animated GIFs for custom dancers.\n\nYour pictures stay in your Documents folder, so updating the game leaves your collection intact.\n\nBuild your own buildings with mods\n\nWant something the city doesn\'t have yet? Vibe City supports mods. A mod adds a brand new building to your build menu, with its own art, price and upkeep. It can also use power and water, provide jobs, and pay money back into your city. Click the building and a mod can open its own mini game, an animated scene or a whole visual novel.\n\nTo install a mod, drop its folder into the mods folder and restart the game.\n\nWindows and macOS\n\n• Mods: Documents/Vibe City/mods/\n\nLinux\n\n• Mods: /home/[user]/Documents/Vibe City/mods/\n\nEach mod lives in its own folder with a mod.json file, its building art and an icon. The modding guide (MODDING.md) is copied into your mods folder, so the basics are right there.\n\nThe Vibe City Mod Kit\n\nReady to make your own? The free Vibe City Mod Kit is on GitHub:\n\nhttps://github.com/fswolf/vibe-city-modkit\n\n• Ready-to-copy templates: a simple building, a micro arcade game, a visual novel, an animation framework, and still-picture scenes with play buttons.\n\n• VC Novel Studio: a desktop editor for writing visual novels, with scene cards, a live preview, a scene map and automatic backups.\n\n• Sprite tools: check, slice and fix your building art so it sits perfectly on the tile.\n\n• Plain-language guides for every part, from mod.json to packing and sharing your mod.\n\nCopy a template into your mods folder, start the game, and you already have a working mod to build on. The kit is MIT licensed, so your mods are yours.\n\nWant to see what a mod can do? Try Neon Brew, a cozy cafe for your city. Inside, you can play Barista Rush: serve coffee to a cast of regulars before they run out of patience, and send your takings to the city budget.\n\nYour city is waiting. Welcome to Vibe City.', 4.99, 0, 1, 'Vibe-City-1.0.6-x64.zip, Vibe-City-1.0.4-mac-universal.dmg, Vibe-City-1.0.6-x86_64.AppImage, neon-brew-mod.zip', NULL, 1, 0, 0, 4, '2026-11-05 10:01:33', '2026-11-07 08:37:20'),
+(8, 4, 'ib-000-001', 'Vibe Copter', 'vibe-copter', 0, NULL, 4.99, 0, 1, NULL, NULL, 1, 0, 0, 4, '2026-11-06 08:34:25', '2026-11-07 02:42:21');
 
 -- --------------------------------------------------------
 
@@ -267,7 +270,32 @@ INSERT INTO `product_images` (`id`, `product_id`, `image`, `sort_order`) VALUES
 (5, 6, 'assets/images/items/desk-lamp-1.png', 1),
 (6, 5, 'assets/images/items/usb-hub-1.png', 1),
 (8, 7, 'assets/images/items/vibe-city-2.png', 1),
-(9, 1, 'assets/images/items/gaming-mouse-1.webp', 2);
+(9, 1, 'assets/images/items/gaming-mouse-1.webp', 2),
+(11, 8, 'assets/images/items/vibe-copter-1.png', 1),
+(12, 8, 'assets/images/items/vibe-copter-2.png', 2),
+(15, 7, 'assets/images/items/vibe-city-1.png', 2),
+(16, 7, 'assets/images/items/vibe-city-3.png', 3),
+(17, 7, 'assets/images/items/vibe-city-4.png', 4),
+(18, 7, 'assets/images/items/vibe-city-5.png', 5),
+(19, 7, 'assets/images/items/vibe-city-6.png', 6),
+(20, 7, 'assets/images/items/vibe-city-7.png', 7),
+(21, 7, 'assets/images/items/vibe-city-8.png', 8),
+(22, 7, 'assets/images/items/vibe-city-9.png', 9),
+(23, 7, 'assets/images/items/vibe-city-10.png', 10);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_keys`
+--
+
+CREATE TABLE `product_keys` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `product_id` int(10) UNSIGNED NOT NULL,
+  `key_value` varchar(255) NOT NULL COMMENT 'an itch.io download key link, a steam key, any code',
+  `order_item_id` bigint(20) UNSIGNED DEFAULT NULL COMMENT 'the order line it is held for, null = unused',
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -310,7 +338,7 @@ CREATE TABLE `store_info` (
 --
 
 INSERT INTO `store_info` (`id`, `store_name`, `company_name`, `email`, `phone`, `address_line1`, `address_line2`, `city`, `state_province`, `postal_code`, `country`, `website`, `currency`, `tax_rate`, `shipping_flat`, `free_shipping_over`, `timezone`, `logo`, `favicon`, `hero_image`, `hero_heading`, `hero_text`, `hero_button`, `hero_link`, `payments_off`, `created_at`, `updated_at`) VALUES
-(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-06-22 23:50:34', '2026-11-06 07:15:53');
+(1, 'iB Store', 'My Company', 'store@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://example.com/', 'CAD', 0.00, 0.00, NULL, 'UTC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-06-22 23:50:34', '2026-11-07 09:25:13');
 
 --
 -- Indexes for dumped tables
@@ -395,6 +423,14 @@ ALTER TABLE `product_images`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `product_keys`
+--
+ALTER TABLE `product_keys`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `product_key` (`product_id`,`key_value`),
+  ADD KEY `order_item_id` (`order_item_id`);
+
+--
 -- Indexes for table `store_info`
 --
 ALTER TABLE `store_info`
@@ -426,31 +462,37 @@ ALTER TABLE `account_shipping`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `product_keys`
+--
+ALTER TABLE `product_keys`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `store_info`

@@ -37,6 +37,7 @@ class AdminController extends BaseController {
 
         $this->view->set('product', $product);
         $this->view->set('images', $id ? ProductImgModel::getAll($id) : array());
+        $this->view->set('keys', $id ? ProductKeysModel::counts($id) : array(0, 0)); // [unused, total]
         $this->view->set('all_categories', CategoriesModel::getAllAdmin());
 
         $this->view->render();

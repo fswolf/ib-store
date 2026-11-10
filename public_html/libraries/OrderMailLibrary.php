@@ -83,20 +83,30 @@ class OrderMailLibrary {
 		return $lines;
 	}
 
-	// download links for digital lines, once the order is paid. one file links the item's name, several link each
-	// file by its name (Download Vibe City: game-x64.zip · game-mac.dmg)
+	// download links and keys for digital lines, once the order is paid. one file links the item's name, several link
+	// each file by its name (Download Vibe City: game-x64.zip · game-mac.dmg). a key link is a claim link, a plain key
+	// is printed as is
 	private function downloads() {
 		if (!$this->order->downloadsReady()) return '';
 		$out = '';
 		foreach ($this->order->items as $item) {
-			$files = $item['digital'] ? download_files($item['download_url']) : array();
-			if (!$files) continue;
-			$links = array();
-			foreach ($files as $n => $file) {
-				$label = count($files) > 1 ? download_name($file) : $item['name'];
-				$links[] = '<a href="' . htmlspecialchars($this->link . '/download/' . (int) $item['id'] . '/' . ($n + 1)) . '" style="color:#4f46e5">' . htmlspecialchars($label) . '</a>';
+			if (!$item['digital']) continue;
+
+			$files = download_files($item['download_url']);
+			if ($files) {
+				$links = array();
+				foreach ($files as $n => $file) {
+					$label = count($files) > 1 ? download_name($file) : $item['name'];
+					$links[] = '<a href="' . htmlspecialchars($this->link . '/download/' . (int) $item['id'] . '/' . ($n + 1)) . '" style="color:#4f46e5">' . htmlspecialchars($label) . '</a>';
+				}
+				$out .= '<br>Download' . (count($files) > 1 ? ' ' . htmlspecialchars($item['name']) : '') . ': ' . implode(' &middot; ', $links);
 			}
-			$out .= '<br>Download' . (count($files) > 1 ? ' ' . htmlspecialchars($item['name']) : '') . ': ' . implode(' &middot; ', $links);
+
+			foreach ($item['keys'] ?? array() as $key) {
+				$out .= '<br>Key for ' . htmlspecialchars($item['name']) . ': ' . (preg_match('#^https?://#i', $key)
+					? '<a href="' . htmlspecialchars($key) . '" style="color:#4f46e5">Claim your copy</a>'
+					: '<code>' . htmlspecialchars($key) . '</code>');
+			}
 		}
 		return $out;
 	}
