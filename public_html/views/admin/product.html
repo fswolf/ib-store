@@ -106,7 +106,7 @@
 				        <?php if ($product->id): [$keys_unused, $keys_total] = $keys; ?>
 				        <section class="admin-section" id="keys-section">
 				            <h2>Keys</h2>
-				            <p class="form-hint">Handed out while Digital key is ticked above: itch.io download keys, Steam keys or any other code, one per order once it is paid. Paste them one per line, pick a .txt file with one per line for a long list, or both. A key already in the list is skipped. The product shows sold out when they run out. Unticking Digital key keeps the list here for later.</p>
+				            <p class="form-hint">One key goes out with each order once it is paid, while Digital key is ticked above. The product shows sold out when they run out, and unticking Digital key keeps the list here for later.</p>
 				            <p class="form-hint" id="keys-count"><?= $keys_total ? '<strong>' . number_format($keys_unused) . '</strong> unused of ' . number_format($keys_total) . ' added.' : 'No keys yet.' ?></p>
 
 				            <!-- multipart, admin/product.js posts the pasted keys and / or the file to /api/admin/products/keys -->
@@ -114,11 +114,15 @@
 				                <input type="hidden" name="product_id" value="<?= (int) $product->id ?>">
 				                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 				                <div class="form-group">
-				                    <textarea name="keys" rows="5" placeholder="Paste keys, one per line: https://you.itch.io/game/download/..."></textarea>
-				                </div>
-				                <div class="form-group keys-file">
-				                    <label for="keys-file">Or a .txt file, one key per line</label>
+				                    <label for="keys-file">Upload a key file</label>
 				                    <input id="keys-file" name="file" type="file" accept=".txt,text/plain">
+				                    <small class="form-hint">A plain .txt file with one key per line: itch.io download links, Steam keys or any other code. Keys already in the list are skipped.</small>
+				                </div>
+
+				                <!-- for a handful of keys. hidden it is disabled too, so nothing in it gets sent -->
+				                <button type="button" id="keys-paste-toggle" class="btn-link" aria-controls="keys-paste" aria-expanded="false">Paste keys instead</button>
+				                <div class="form-group" id="keys-paste" hidden>
+				                    <textarea name="keys" rows="5" placeholder="One key per line" disabled></textarea>
 				                </div>
 				                <div class="form-actions">
 				                    <button type="submit" class="btn">Add Keys</button>

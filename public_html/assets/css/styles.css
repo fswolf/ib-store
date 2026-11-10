@@ -2357,13 +2357,26 @@ footer p {
     color: var(--focus-color);
 }
 
-/* admin product keys: the file picker under the paste box, what the last add did beside the button, remove off to the right */
-.keys-file {
+/* admin product keys: the file picker, a text link that opens the paste box under it, what the last add did beside
+   the button, remove off to the right */
+#keys-form {
+    margin-top: 1.25rem;
+}
+
+#keys-file {
+    max-width: 22rem;
+}
+
+#keys-paste-toggle {
+    margin-top: 0.25rem;
+}
+
+#keys-paste {
     margin-top: 0.75rem;
 }
 
-.keys-file input[type="file"] {
-    max-width: 22rem;
+#keys-paste[hidden] {
+    display: none;
 }
 
 #keys-result {

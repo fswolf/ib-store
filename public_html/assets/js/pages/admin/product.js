@@ -49,6 +49,7 @@ export default class AdminProduct {
         // both answer with the new counts, shown in place
         this.keys = new FileUpload({ form: "keys-form", endpoint: `${this.endpoint}/keys`, busy: "Adding...", onDone: (data) => this.key_counts(data) });
         document.getElementById('keys-form')?.addEventListener('submit', () => document.getElementById('keys-result').textContent = ""); // an error only toasts, so no stale line beside it
+        document.getElementById('keys-paste-toggle')?.addEventListener('click', (e) => this.paste_box(e.currentTarget));
         document.getElementById('clear-keys')?.addEventListener('click', async () => {
             if (!confirm("Remove the unused keys? Keys already on orders stay with them.")) return;
             const result = await this.api.post(`${this.endpoint}/keys/clear`, { id: this.form.dataset.id, csrf_token: this.csrf() });
@@ -121,6 +122,17 @@ export default class AdminProduct {
                 <button type="button" class="btn-link image-delete">Remove</button>
             </div>`;
         return div;
+    }
+
+    // shows or hides the paste box under the file picker. hidden, the box is disabled so the form leaves it out
+    paste_box(toggle) {
+        const box = document.getElementById('keys-paste');
+        const textarea = box.querySelector('textarea');
+        box.hidden = !box.hidden;
+        textarea.disabled = box.hidden;
+        toggle.textContent = box.hidden ? "Paste keys instead" : "Hide the paste box";
+        toggle.setAttribute('aria-expanded', String(!box.hidden));
+        if (!box.hidden) textarea.focus();
     }
 
     // the keys section after an add or a remove: the count, what happened (stays after the toast is gone), the remove button
