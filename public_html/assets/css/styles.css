@@ -704,6 +704,18 @@ footer p {
     color: var(--focus-color);
 }
 
+.product-description blockquote {
+    margin: 0 0 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-color);
+}
+
+.product-description hr {
+    margin: 1.25rem 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
+}
+
 .product-condition {
     display: inline-block;
 
@@ -2249,28 +2261,90 @@ footer p {
     gap: 0.5rem 1.5rem;
 }
 
-/* admin product: the markdown buttons over the description */
-.md-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-bottom: 0.4rem;
+/* admin product: the EasyMDE description editor in the store's colours. its css is light only and loads after this
+   file (on the page itself), so these go through the form's id to win */
+#product-form .EasyMDEContainer .CodeMirror,
+#product-form .EasyMDEContainer .editor-preview,
+#product-form .EasyMDEContainer .editor-preview-side,
+#product-form .EasyMDEContainer .editor-toolbar.fullscreen {
+    background: var(--bg-surface);
+    color: var(--text-body);
+    border-color: var(--border-color);
 }
 
-.md-toolbar button {
-    padding: 0.25rem 0.6rem;
-    font: inherit;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
+#product-form .EasyMDEContainer .CodeMirror {
+    border-radius: 0 0 8px 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
 }
 
-.md-toolbar button:hover {
-    color: var(--text-heading);
+#product-form .EasyMDEContainer .CodeMirror-focused {
     border-color: var(--accent);
+}
+
+#product-form .EasyMDEContainer .CodeMirror-cursor {
+    border-left-color: var(--text-heading);
+}
+
+#product-form .EasyMDEContainer .CodeMirror-selected,
+#product-form .EasyMDEContainer .CodeMirror-focused .CodeMirror-selected {
+    background: rgba(var(--accent-glow), .3);
+}
+
+#product-form .EasyMDEContainer .editor-toolbar {
+    border-color: var(--border-color);
+    border-radius: 8px 8px 0 0;
+    background: var(--bg-surface-alt);
+    opacity: 1;
+}
+
+#product-form .EasyMDEContainer .editor-toolbar.fullscreen::before,
+#product-form .EasyMDEContainer .editor-toolbar.fullscreen::after {
+    display: none;
+}
+
+#product-form .EasyMDEContainer .editor-toolbar button {
+    color: var(--text-secondary);
+}
+
+#product-form .EasyMDEContainer .editor-toolbar button svg {
+    vertical-align: middle;
+}
+
+/* easymde writes the level after its own heading icons, ours have it drawn in */
+#product-form .EasyMDEContainer .editor-toolbar button[class*="heading"]::after {
+    content: none;
+}
+
+#product-form .EasyMDEContainer .editor-toolbar button:hover,
+#product-form .EasyMDEContainer .editor-toolbar button.active {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-heading);
+}
+
+#product-form .EasyMDEContainer .editor-toolbar i.separator {
+    border-left-color: var(--border-color);
+    border-right-color: transparent;
+}
+
+#product-form .EasyMDEContainer .editor-statusbar {
+    color: var(--text-muted);
+}
+
+#product-form .EasyMDEContainer .editor-preview,
+#product-form .EasyMDEContainer .editor-preview-side {
+    line-height: 1.7;
+}
+
+#product-form .EasyMDEContainer .editor-preview p,
+#product-form .EasyMDEContainer .editor-preview-side p {
+    margin-bottom: 1rem;
+}
+
+#product-form .EasyMDEContainer .cm-link,
+#product-form .EasyMDEContainer .cm-url {
+    color: var(--focus-color);
 }
 
 /* admin product keys: the file picker under the paste box, what the last add did beside the button, remove off to the right */

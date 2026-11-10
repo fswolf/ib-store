@@ -1,6 +1,7 @@
 import ApiForm from "../../tools/api_form.js";
 import ApiClient from "../../tools/api_client.js";
 import FileUpload from "../../tools/file_upload.js";
+import MarkdownEditor from "../../tools/markdown_editor.js";
 
 // product edit form plus the image uploader (file_upload.js, multipart)
 export default class AdminProduct {
@@ -70,53 +71,20 @@ export default class AdminProduct {
         });
     }
 
-    // the description toolbar and ctrl+b / ctrl+i / ctrl+k write markdown around the selection (MarkdownLibrary renders it)
+    // the description editor. its preview comes from the store's own renderer and wears the product page's description
+    // style, so it shows what the page will
     markdown() {
-        const box = this.form.elements.description;
-        const toolbar = document.getElementById('md-toolbar');
-        if (!box || !toolbar) return;
-
-        toolbar.addEventListener('click', (e) => {
-            const button = e.target.closest('button[data-md]');
-            if (button) this.format(box, button.dataset.md);
-        });
-        box.addEventListener('keydown', (e) => {
-            const kind = { b: "bold", i: "italic", k: "link" }[e.key.toLowerCase()];
-            if (!kind || !(e.ctrlKey || e.metaKey)) return;
-            e.preventDefault();
-            this.format(box, kind);
-        });
+        this.editor = new MarkdownEditor({ element: this.form.elements.description, preview: (text, el) => this.preview(text, el) });
     }
 
-    // nothing selected puts in a sample to type over. bold and italic on text that has them take them off again,
-    // a list over lines that are already a list switches its kind
-    format(box, kind) {
-        const [start, end] = [box.selectionStart, box.selectionEnd];
-        const picked = box.value.slice(start, end);
-        const before = start > 0 && box.value[start - 1] !== "\n" ? "\n" : ""; // lists and headings sit on lines of their own
-        const after = end < box.value.length && box.value[end] !== "\n" ? "\n" : "";
-        const wrapped = (mark) => picked.length > mark.length * 2 && picked.startsWith(mark) && picked.endsWith(mark) && (mark !== "*" || !picked.startsWith("**"));
-        const wrap = (mark, sample) => wrapped(mark) ? picked.slice(mark.length, -mark.length) : mark + (picked || sample) + mark;
-        const list = (marker) => before + (picked || "item").split("\n").map((l, i) => marker(i) + l.replace(/^([-*•]|\d+[.)]) +/, "")).join("\n") + after;
-
-        let text;
-        switch (kind) {
-            case 'bold': text = wrap("**", "bold text"); break;
-            case 'italic': text = wrap("*", "italic text"); break;
-            case 'link': {
-                let url = prompt("Link to", "https://")?.trim();
-                if (!url || url === "https://") return;
-                if (!/^(https?:\/\/|mailto:|\/)/i.test(url)) url = `https://${url}`; // the store only links these
-                text = `[${picked || url}](${url})`;
-                break;
-            }
-            case 'ul': text = list(() => "- "); break;
-            case 'ol': text = list((i) => `${i + 1}. `); break;
-            case 'heading': text = before + `## ${picked.replace(/^#+ +/, "") || "Heading"}` + after; break;
-            default: return;
-        }
-        box.focus();
-        box.setRangeText(text, start, end, "select");
+    // side by side asks on every keystroke, so wait for a pause in the typing
+    preview(text, el) {
+        clearTimeout(this.preview_wait);
+        this.preview_wait = setTimeout(async () => {
+            const result = await this.api.post(`${this.endpoint}/preview`, { text, csrf_token: this.csrf() });
+            const data = result.data ?? result.raw;
+            if (data?.success) el.innerHTML = data.html;
+        }, 250);
     }
 
     // the delivery boxes show under digital, the download field and the key pool under their box

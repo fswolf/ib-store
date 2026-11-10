@@ -55,6 +55,15 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
+            // POST {text, csrf_token}: the description editor's preview, through the same renderer as the product page
+            case 'preview':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    return ['html' => MarkdownLibrary::render((string) ($data->text ?? ''))];
+                });
+                break;
+
             // POST {id, csrf_token}
             case 'delete':
                 $this->respond(function() {

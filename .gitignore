@@ -10,6 +10,7 @@ public_html/error.log
 
 # fetched by ./update-libs.sh, not kept in git
 public_html/assets/vendor/BTCPayServer/
+public_html/assets/vendor/easymde/
 
 # my own push, deploy and export scrub scripts
 push.sh

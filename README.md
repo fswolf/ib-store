@@ -48,7 +48,7 @@ The code itself is about 19 kB over the wire. The rest of the cold load is the p
 3. Copy `public_html/config/config.example.php` to `config.php` and fill in the `DB_*` lines and `MAIL_FROM`. That file is ignored by git, so your keys never leave the server.
 4. Make `public_html/cache/` and `public_html/assets/images/items/` writable by the web server user. The first holds the class map and rate limit files, the second is where product uploads land.
 5. Register an account, then set `is_admin = 1` on it in the `accounts` table and open `/admin`. Store Settings is the first stop: currency, tax, shipping and your contact details.
-6. For Bitcoin, run `./update-libs.sh` once. It pulls the official BTCPay Greenfield client into `public_html/assets/vendor/`.
+6. Run `./update-libs.sh` once. It pulls the official BTCPay Greenfield client and the product description editor (EasyMDE) into `public_html/assets/vendor/`.
 
 Everything after that is in [docs/README.md](docs/README.md): how the code hangs together, the flow of a sale, and the step by step for each payment gateway (what to create on the BTCPay, Stripe and PayPal side, which webhook events, where the ids go).
 
