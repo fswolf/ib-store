@@ -79,6 +79,7 @@ class AdminApiController extends ApiController {
 
                         $file = $_FILES['keys'] ?? null;
                         if (!$file || !isset($file['error']) || is_array($file['error'])) throw new Exception('No file uploaded');
+                        if ($file['error'] === UPLOAD_ERR_INI_SIZE) throw new Exception('The file is bigger than the server takes (upload_max_filesize ' . ini_get('upload_max_filesize') . '), split it in two');
                         if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Upload failed (code ' . $file['error'] . ')');
                         $text = file_get_contents($file['tmp_name']);
                         if (strpos($text, "\0") !== false || !mb_check_encoding($text, 'UTF-8')) throw new Exception('That is not a text file, save the keys as .txt one per line');
@@ -137,7 +138,7 @@ class AdminApiController extends ApiController {
     // the pasted list and the uploaded file both end here
     private function keysAdded($product_id, $text) {
         [$added, $skipped] = ProductKeysModel::add($product_id, $text);
-        return ['message' => $added . ' added' . ($skipped ? ', ' . $skipped . ' already in the list' : '') . '.'];
+        return ['message' => $added . ' added' . ($skipped ? ', ' . $skipped . ' skipped as repeats' : '') . '.'];
     }
 
     // checks type by content not extension, names the file after the product slug
