@@ -267,6 +267,19 @@ class AdminApiController extends ApiController {
                 });
                 break;
 
+            // POST {id, csrf_token} : the downloads and keys email again, for a paid order with digital lines
+            case 'resend':
+                $this->respond(function() {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+                    $order = OrdersModel::get((int) ($data->id ?? 0));
+                    if (!$order) throw new Exception('Order not found');
+                    if (!$order->downloadsReady()) throw new Exception('This order is not paid yet');
+                    OrderMailLibrary::resend($order);
+                    return ['message' => 'Sent to ' . $order->email . '.'];
+                });
+                break;
+
             // POST {id, notes, csrf_token}
             case 'notes':
                 $this->respond(function() {

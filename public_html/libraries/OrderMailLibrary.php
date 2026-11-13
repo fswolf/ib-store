@@ -51,8 +51,8 @@ class OrderMailLibrary {
 		}
 	}
 
-	// the customer asked for the downloads and keys again (resend button on their orders pages). unlike the
-	// sends above this one throws, the button has to say whether it went
+	// the downloads and keys again, from the resend button on the customer's orders pages or the admin's. unlike
+	// the sends above this one throws, the button has to say whether it went
 	public static function resend($order) {
 		$m = new OrderMailLibrary($order);
 		$downloads = $m->downloads();

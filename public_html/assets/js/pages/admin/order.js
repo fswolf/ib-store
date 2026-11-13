@@ -1,7 +1,10 @@
 import ApiForm from "../../tools/api_form.js";
+import ApiClient from "../../tools/api_client.js";
 
-// one order: status change and admin notes
+// one order: status change, admin notes and the resend email button
 export default class AdminOrder {
+    api = new ApiClient();
+
     constructor({ endpoint = "/api/admin/orders" } = {}) {
         const status = document.getElementById('status-form');
         const notes = document.getElementById('notes-form');
@@ -27,5 +30,24 @@ export default class AdminOrder {
                 beforeSend: (data) => data.id = notes.dataset.id,
             });
         }
+
+        const resend = document.getElementById('resend-email');
+        resend?.addEventListener('click', () => this.resend(`${endpoint}/resend`, resend));
+    }
+
+    async resend(endpoint, button) {
+        button.disabled = true;
+
+        const result = await this.api.post(endpoint, { id: button.dataset.id, csrf_token: button.dataset.csrf });
+        const reply = result.data ?? result.raw; // api_client puts a non 2xx body in raw
+
+        button.disabled = false;
+
+        if (!result.success || !reply?.success) {
+            if (reply?.signin) { window.location.href = "/signin"; return; }
+            window.notify.error(reply?.error || result.error || "Could not send the email.");
+            return;
+        }
+        window.notify.success(reply.message);
     }
 }

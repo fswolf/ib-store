@@ -325,7 +325,8 @@ class OrdersModel {
 		list($where, $params) = self::filter($search, $status);
 
 		$select = $db->pdo->prepare("
-			SELECT o.*, a.username, (SELECT COUNT(*) FROM order_items i WHERE i.order_id = o.id) AS item_count
+			SELECT o.*, a.username, (SELECT COUNT(*) FROM order_items i WHERE i.order_id = o.id) AS item_count,
+				(SELECT COUNT(*) FROM order_items i WHERE i.order_id = o.id AND i.digital = 1) AS digital_count
 			FROM `orders` o
 			LEFT JOIN accounts a ON a.id = o.account_id
 			$where
