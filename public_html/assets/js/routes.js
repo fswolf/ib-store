@@ -14,6 +14,8 @@ export const Routes = {
     "/forgot": () => import("./pages/forgot.js"),
     "/reset/:token": () => import("./pages/reset.js"),
     "/user/settings": () => import("./pages/profile.js"),
+    "/user/orders": () => import("./pages/orders.js"),
+    "/user/orders/:uuid": () => import("./pages/orders.js"),
     "/admin/products": () => import("./pages/admin/products.js"),
     "/admin/products/new": () => import("./pages/admin/product.js"),
     "/admin/products/:id": () => import("./pages/admin/product.js"),
@@ -92,6 +94,12 @@ export const Configs = {
         endpoint: "/api/auth/reset",
     },
     "/user/settings": {
+        endpoint: "/api/account"
+    },
+    "/user/orders": {
+        endpoint: "/api/account"
+    },
+    "/user/orders/:uuid": {
         endpoint: "/api/account"
     },
     "/admin/products": {

@@ -51,6 +51,18 @@ class OrderMailLibrary {
 		}
 	}
 
+	// the customer asked for the downloads and keys again (resend button on their orders pages). unlike the
+	// sends above this one throws, the button has to say whether it went
+	public static function resend($order) {
+		$m = new OrderMailLibrary($order);
+		$downloads = $m->downloads();
+		if ($downloads === '') throw new Exception('This order has no downloads or keys to send.');
+
+		$heading = "Order {$m->short} downloads";
+		$body = 'Here are the downloads and keys for your order again.' . $downloads . '<br><br>' . $m->lines();
+		$m->mail->send($order->email, "{$m->info->store_name}: $heading", MailLibrary::card($m->info->store_name, $heading, $body, 'View Order', $m->link), true);
+	}
+
 	// -- Pieces -- //
 	private function customer($subject, $body, $button) {
 		$this->send($this->order->email, "{$this->info->store_name}: $subject", $subject, $body, $button, $this->link);

@@ -18,6 +18,7 @@ class AccountController extends BaseController {
     public function orders() {
         $this->requireLogin();
         $this->setGlobals();
+        $this->csrfToken(); // the resend email buttons
 
         $this->view->set('orders', OrdersModel::getByAccount($this->user->id));
 
@@ -37,6 +38,7 @@ class AccountController extends BaseController {
         }
         $order->getItems();
         $this->view->set('order', $order);
+        $this->csrfToken(); // the resend email button
 
         $this->view->template = 'order.html';
         $this->view->render();

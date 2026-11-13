@@ -62,6 +62,26 @@ class AccountApiController extends ApiController {
                 });
                 break;
 
+            // POST {uuid, csrf_token} : the downloads and keys email again, for a paid order of their own
+            case 'resend':
+                $this->respond(function() use ($user) {
+                    $data = $this->input();
+                    $this->checkCsrf($data);
+
+                    $order = OrdersModel::getByUuid((string) ($data->uuid ?? ''));
+                    if (!$order || $order->account_id != $user->id) throw new Exception('Order not found');
+                    if (!$order->downloadsReady()) throw new Exception('This order is not paid yet');
+
+                    // one a minute per order, so the button cannot be leaned on
+                    $last = (int) $this->session->get('resent_' . $order->id);
+                    if ($last && time() - $last < 60) throw new Exception('That was just sent, give it a minute.');
+
+                    OrderMailLibrary::resend($order);
+                    $this->session->set('resent_' . $order->id, time());
+                    return ['message' => 'Sent to ' . $order->email . '.'];
+                });
+                break;
+
             default:
                 Flight::halt(404);
         }

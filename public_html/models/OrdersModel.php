@@ -46,6 +46,7 @@ class OrdersModel {
 	// joined in by getPage / admin views
 	public $username;
 	public $item_count;
+	public $digital_count;
 
 	// filled by getItems()
 	public $items = array();
@@ -168,7 +169,7 @@ class OrdersModel {
 	public static function getByAccount($account_id) {
 		$db = new DatabaseLibrary();
 		$select = $db->pdo->prepare('
-			SELECT o.*, COUNT(i.id) AS item_count
+			SELECT o.*, COUNT(i.id) AS item_count, COALESCE(SUM(i.digital), 0) AS digital_count
 			FROM `orders` o
 			LEFT JOIN order_items i ON i.order_id = o.id
 			WHERE o.account_id = :account_id

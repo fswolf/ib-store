@@ -170,10 +170,10 @@ class AdminApiController extends ApiController {
         $dir = $_SERVER['DOCUMENT_ROOT'] . '/' . ITEM_IMAGE_DIR;
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) throw new Exception('Cannot create the image folder');
 
-        // slug-1.png, slug-2.png ... first free number
-        $n = 1;
+        // slug-<random>.png, a name never used before. reusing a removed image's name (slug-3.png again) had browsers
+        // show the old picture from their cache under the new upload
         do {
-            $name = $slug . '-' . $n++ . '.' . $types[$mime];
+            $name = $slug . '-' . bin2hex(random_bytes(4)) . '.' . $types[$mime];
         } while (file_exists($dir . $name));
 
         if (!move_uploaded_file($file['tmp_name'], $dir . $name)) throw new Exception('Could not save the image');

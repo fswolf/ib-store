@@ -34,6 +34,7 @@
 				        <?php if (empty($orders)): ?>
 				        <p class="no-results">No orders yet. <a href="/items">Go find something.</a></p>
 				        <?php else: ?>
+				        <!-- orders.js: a resend button posts its order to /api/account/resend -->
 				        <table class="order-lines orders-table">
 				            <thead>
 				                <tr><th>Order</th><th>Date</th><th>Items</th><th>Status</th><th class="num">Total</th></tr>
@@ -41,7 +42,7 @@
 				            <tbody>
 				                <?php foreach ($orders as $order): ?>
 				                <tr>
-				                    <td><a href="/user/orders/<?= htmlspecialchars($order->uuid) ?>"><code><?= substr($order->uuid, 0, 8) ?></code></a></td>
+				                    <td><a href="/user/orders/<?= htmlspecialchars($order->uuid) ?>"><code><?= substr($order->uuid, 0, 8) ?></code></a><?php if ($order->downloadsReady() && $order->digital_count): ?><br><button type="button" class="btn-link resend-email" data-uuid="<?= htmlspecialchars($order->uuid) ?>" data-csrf="<?= $csrf_token ?>">Resend email</button><?php endif; ?></td>
 				                    <td><?= date('M j, Y', strtotime($order->created)) ?></td>
 				                    <td><?= (int) $order->item_count ?></td>
 				                    <td><span class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span></td>

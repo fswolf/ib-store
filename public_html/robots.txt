@@ -1,2 +1,15 @@
-User-agent: * 
-Disallow: /   
+# the store's pages are open, the pages about an account, an order or a search are not worth a crawl
+User-agent: *
+Disallow: /admin
+Disallow: /api/
+Disallow: /cart
+Disallow: /user/
+Disallow: /search/
+Disallow: /signin
+Disallow: /signout
+Disallow: /register
+Disallow: /forgot
+Disallow: /reset/
+Disallow: /verify/
+Disallow: /404
+Disallow: /500
