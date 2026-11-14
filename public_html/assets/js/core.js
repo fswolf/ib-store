@@ -1,7 +1,8 @@
 import GlobalUI from "./global_ui.js";
 
 export class Core {
-    path = window.location.pathname;
+    // a trailing slash is the same page (flight serves both), drop it so /items/ matches the /items route
+    path = window.location.pathname.replace(/(.)\/+$/, '$1');
     global_ui;
 
     constructor(properties = {}) {
