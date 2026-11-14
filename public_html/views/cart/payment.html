@@ -2,7 +2,8 @@
 <html lang="en">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<title>Payment - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
+		<?php $pending = $order->status === 'pending'; $done = $order->downloadsReady(); // paid, shipped or complete ?>
+		<title><?= $pending ? 'Payment' : 'Order ' . htmlspecialchars($order->statusLabel()) ?> - <?= htmlspecialchars($store_name ?? 'Not Loaded') ?></title>
 		<link rel="icon" href="<?= $favicon ?? '/assets/images/bored.png' ?>">
 		<link href="/assets/css/styles.css" rel="stylesheet" />
 	</head>
@@ -19,11 +20,27 @@
 				    <!-- Left Side -->
 				    <div class="payment-form">
 
-				        <h1>Payment</h1>
+				        <h1><?= $pending ? 'Payment' : ($done ? 'Thank you!' : 'Order ' . htmlspecialchars($order->statusLabel())) ?></h1>
 
 				        <p class="order-ref">Order <code><?= htmlspecialchars($order->uuid) ?></code> placed <?= date('M j, Y g:i a', strtotime($order->created)) ?> · <span class="order-status <?= $order->status ?>"><?= $order->statusLabel() ?></span></p>
 
-				        <?php if ($order->status === 'pending'): ?>
+				        <?php if ($done): ?>
+				        <!-- the order is paid: no payment step left, just where to find what they bought -->
+				        <section class="payment-section order-done">
+				            <h2>Payment received</h2>
+				            <p>
+				                <?php if (array_filter(array_column($order->items, 'digital'))): ?>Your downloads and keys are in the order review below, and we emailed them to <?= htmlspecialchars($order->email) ?>. They stay on your order page too.<?php endif; ?>
+				                <?php if ($order->has_physical): ?><?= $order->status === 'shipped' || $order->status === 'complete' ? 'Your items are on their way.' : 'We will email you when your items ship.' ?><?php endif; ?>
+				            </p>
+				        </section>
+				        <?php elseif (!$pending): ?>
+				        <section class="payment-section order-done">
+				            <h2>This order is <?= htmlspecialchars(strtolower($order->statusLabel())) ?></h2>
+				            <p>There is nothing to pay. <a href="/contact">Get in touch</a> if that looks wrong.</p>
+				        </section>
+				        <?php endif; ?>
+
+				        <?php if ($pending): ?>
 				        <section class="payment-section">
 
 				            <h2>Select Payment Method</h2>
@@ -135,7 +152,7 @@
 				    <!-- Right Side -->
 				    <div class="payment-summary">
 
-				        <h2>Order Summary</h2>
+				        <h2><?= $pending ? 'Order Summary' : 'Order Total' ?></h2>
 
 				        <div class="summary-item">
 				            <span>Subtotal</span>
@@ -159,15 +176,16 @@
 				            <span>$<?= number_format((float) $order->total, 2) ?> <small><?= htmlspecialchars($order->currency) ?></small></span>
 				        </div>
 
-				        <button class="complete-order-btn" disabled>
-				            Complete Order
-				        </button>
-
-				        <p class="form-hint">You can find this order any time under <a href="/user/orders">Account › Orders</a>.</p>
+				        <?php if ($pending): ?>
+				        <p class="form-hint">Pick a payment method to finish your order. You can find it any time under <a href="/user/orders">Account › Orders</a>.</p>
 
 				        <div class="secure-checkout">
 				            🔒 Secure Checkout
 				        </div>
+				        <?php else: ?>
+				        <?php if ($order->paid_at): ?><p class="form-hint">Paid <?= date('M j, Y g:i a', strtotime($order->paid_at)) ?></p><?php endif; ?>
+				        <a href="/user/orders/<?= htmlspecialchars($order->uuid) ?>" class="complete-order-btn">View Your Order</a>
+				        <?php endif; ?>
 
 				    </div>
 

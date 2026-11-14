@@ -1362,6 +1362,27 @@ footer p {
     background: var(--accent-hover);
 }
 
+/* on a paid order the button is a link to the order page */
+a.complete-order-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* the payment page once there is nothing left to pay */
+.order-done {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    background: var(--bg-surface);
+}
+
+.order-done p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
 .secure-checkout {
     text-align: center;
 
