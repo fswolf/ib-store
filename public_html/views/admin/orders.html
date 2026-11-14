@@ -22,7 +22,6 @@
 				            <button id="orders-export" type="button" class="btn">Export CSV</button>
 				        </div>
 
-				        <!-- the last column is a resend email button on paid orders with digital lines, it posts to /api/admin/orders/resend -->
 				        <table id="orders-table" class="admin-table" data-csrf="<?= $csrf_token ?>">
 				            <thead>
 				                <tr>
@@ -33,7 +32,6 @@
 				                    <th data-key="item_count" class="num">Items</th>
 				                    <th data-sort="status">Status</th>
 				                    <th data-sort="total" class="num">Total</th>
-				                    <th></th>
 				                </tr>
 				            </thead>
 				            <tbody></tbody>

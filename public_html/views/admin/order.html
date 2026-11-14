@@ -25,10 +25,6 @@
 				                    <?php else: ?>
 				                    <p><a href="mailto:<?= htmlspecialchars($order->email) ?>"><?= htmlspecialchars($order->email) ?></a><br><small>account deleted</small></p>
 				                    <?php endif; ?>
-				                    <?php if ($order->downloadsReady() && array_filter(array_column($order->items, 'digital'))): ?>
-				                    <!-- admin/order.js: sends the downloads and keys email again, /api/admin/orders/resend -->
-				                    <button type="button" id="resend-email" class="btn-link" data-id="<?= (int) $order->id ?>" data-csrf="<?= $csrf_token ?>">Resend email</button>
-				                    <?php endif; ?>
 				                </section>
 
 				                <section class="admin-section">
@@ -59,6 +55,15 @@
 				                    </div>
 				                    <button type="submit" class="btn" data-csrf="<?= $csrf_token ?>">Update Status</button>
 				                </form>
+
+				                <?php if ($order->downloadsReady() && array_filter(array_column($order->items, 'digital'))): ?>
+				                <!-- admin/order.js: sends the downloads and keys email again, /api/admin/orders/resend -->
+				                <section class="admin-section">
+				                    <h2>Order Email</h2>
+				                    <p class="form-hint">Sends the email with the downloads and keys to <?= htmlspecialchars($order->email) ?> again.</p>
+				                    <button type="button" id="resend-email" class="btn" data-id="<?= (int) $order->id ?>" data-csrf="<?= $csrf_token ?>">Resend Email</button>
+				                </section>
+				                <?php endif; ?>
 
 				                <form id="notes-form" class="admin-section" data-id="<?= (int) $order->id ?>">
 				                    <h2>Admin Notes</h2>

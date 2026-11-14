@@ -1,11 +1,8 @@
 import TableSorter from "../../tools/tablesorter.js";
 import ExportCSV from "../../tools/export_csv.js";
-import ApiClient from "../../tools/api_client.js";
 
 // admin order list. the status select swaps the endpoint query and reloads
 export default class AdminOrders {
-    api = new ApiClient();
-
     constructor({ table = "orders-table", endpoint = "/api/admin/orders/list" } = {}) {
         this.endpoint = endpoint;
         this.status = document.getElementById('orders-status');
@@ -28,7 +25,6 @@ export default class AdminOrders {
                 null,
                 { render: (value) => this.badge(value) },
                 { render: (value, row) => `$${Number(value).toFixed(2)} ${row.currency}` },
-                { render: (value, row, td) => { td.className = 'row-actions'; return this.resend_button(row); } },
             ],
         });
 
@@ -67,34 +63,6 @@ export default class AdminOrders {
         code.textContent = String(row.uuid).slice(0, 8);
         a.append(code);
         return a;
-    }
-
-    // paid orders with digital lines get a button that sends the downloads and keys email again
-    resend_button(row) {
-        if (!['paid', 'shipped', 'complete'].includes(row.status) || !Number(row.digital_count)) return "";
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'btn-link';
-        b.textContent = 'Resend email';
-        b.addEventListener('click', () => this.resend(row, b));
-        return b;
-    }
-
-    async resend(row, button) {
-        button.disabled = true;
-
-        const csrf_token = document.getElementById('orders-table')?.dataset.csrf;
-        const result = await this.api.post(this.endpoint.replace(/\/list$/, '/resend'), { id: row.id, csrf_token });
-        const reply = result.data ?? result.raw; // api_client puts a non 2xx body in raw
-
-        button.disabled = false;
-
-        if (!result.success || !reply?.success) {
-            if (reply?.signin) { window.location.href = "/signin"; return; }
-            window.notify.error(reply?.error || result.error || "Could not send the email.");
-            return;
-        }
-        window.notify.success(reply.message);
     }
 
     badge(status) {
