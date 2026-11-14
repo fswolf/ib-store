@@ -15,6 +15,7 @@ class StoreInfoModel {
 	public $website;
 	public $currency;
 	public $tax_rate;
+	public $tax_home_only;
 	public $shipping_flat;
 	public $free_shipping_over;
 	public $timezone;
@@ -79,16 +80,16 @@ class StoreInfoModel {
 	// what checkout needs to total a cart
 	public static function getRates() {
 		$db = new DatabaseLibrary();
-		$select = $db->pdo->prepare('SELECT currency, tax_rate, shipping_flat, free_shipping_over FROM `store_info` LIMIT 1');
+		$select = $db->pdo->prepare('SELECT currency, tax_rate, tax_home_only, country, shipping_flat, free_shipping_over FROM `store_info` LIMIT 1');
 		$select->execute();
 		$record = $select->fetch();
 
 		if($record) return new StoreInfoModel($record);
-		return new StoreInfoModel(array('currency' => 'USD', 'tax_rate' => 0, 'shipping_flat' => 0, 'free_shipping_over' => null));
+		return new StoreInfoModel(array('currency' => 'USD', 'tax_rate' => 0, 'tax_home_only' => 0, 'country' => null, 'shipping_flat' => 0, 'free_shipping_over' => null));
 	}
 
 	// the columns the admin settings form is allowed to touch
-	const FIELDS = array('store_name', 'company_name', 'email', 'phone', 'address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country', 'website', 'currency', 'tax_rate', 'shipping_flat', 'free_shipping_over', 'timezone', 'logo');
+	const FIELDS = array('store_name', 'company_name', 'email', 'phone', 'address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country', 'website', 'currency', 'tax_rate', 'tax_home_only', 'shipping_flat', 'free_shipping_over', 'timezone', 'logo');
 
 	public function fill($data) {
 		$store_name = trim((string) ($data->store_name ?? ''));
@@ -107,6 +108,9 @@ class StoreInfoModel {
 		$free = trim((string) ($data->free_shipping_over ?? ''));
 		if ($free !== '' && (!is_numeric($free) || $free < 0)) throw new Exception('Free shipping over must be a number or empty');
 		$this->free_shipping_over = $free === '' ? null : number_format((float) $free, 2, '.', '');
+
+		// a checkbox, so it is only posted when ticked
+		$this->tax_home_only = empty($data->tax_home_only) ? 0 : 1;
 
 		$this->store_name = $store_name;
 		$this->currency = $currency;
@@ -136,6 +140,7 @@ class StoreInfoModel {
 			website = :website,
 			currency = :currency,
 			tax_rate = :tax_rate,
+			tax_home_only = :tax_home_only,
 			shipping_flat = :shipping_flat,
 			free_shipping_over = :free_shipping_over,
 			timezone = :timezone,

@@ -23,12 +23,19 @@ export default class Shipping {
 
 		this.toggle_fields();
 		this.listen_events();
+		this.update_tax();
 	}
 
 	listen_events() {
 		this.checkbox?.addEventListener('change', () => {
 			this.toggle_fields();
+			this.update_tax();
 		});
+
+		// a country picked in either address form
+		[this.billing, this.shipping].forEach(form => form?.addEventListener('change', (e) => {
+			if (e.target.name === 'country') this.update_tax();
+		}));
 
 		// enter in a field should not submit the forms the browser way
 		[this.billing, this.shipping].forEach(form => form?.addEventListener('submit', (e) => e.preventDefault()));
@@ -42,6 +49,23 @@ export default class Shipping {
 	toggle_fields() {
 		if (!this.shipping || !this.checkbox) return;
 		this.shipping.style.display = this.checkbox.checked ? 'none' : 'block';
+	}
+
+	// store settings can limit tax to customers in the store's country. the summary then follows the country the
+	// order is going to: the shipping address when there is one, else billing. the server does the same sum
+	update_tax() {
+		const tax = document.getElementById('summary-tax');
+		const total = document.getElementById('summary-total');
+		const home = tax?.dataset.country;
+		if (!home || !total) return;
+
+		const same = !this.shipping || this.checkbox?.checked;
+		const country = (same ? this.billing : this.shipping).elements.country.value;
+		const taxed = !country || country.toLowerCase() === home.toLowerCase();
+		const money = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+		tax.textContent = money(taxed ? Number(tax.dataset.tax) : 0);
+		total.firstChild.textContent = `${money(Number(total.dataset.total) - (taxed ? 0 : Number(tax.dataset.tax)))} `;
 	}
 
 	async place_order() {

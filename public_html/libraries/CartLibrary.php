@@ -105,8 +105,10 @@ class CartLibrary {
 		return false;
 	}
 
-	// subtotal, shipping (flat, waived over the threshold, none for digital only), tax on the subtotal
-	public function totals() {
+	// subtotal, shipping (flat, waived over the threshold, none for digital only), tax on the subtotal.
+	// $country is where the order is going, once checkout knows it. with "only the store's country pays tax" ticked
+	// in store settings, an order going anywhere else has no tax. no country yet (the cart page) shows the tax
+	public function totals($country = null) {
 		$rates = StoreInfoModel::getRates();
 		$subtotal = 0;
 		foreach ($this->items() as $item) $subtotal += $item->product->price * $item->qty;
@@ -117,7 +119,9 @@ class CartLibrary {
 			if ($rates->free_shipping_over !== null && $subtotal >= (float) $rates->free_shipping_over) $shipping = 0;
 		}
 
-		$tax = round($subtotal * ((float) $rates->tax_rate / 100), 2);
+		$home = $rates->tax_home_only ? trim((string) $rates->country) : '';
+		$taxed = $home === '' || $country === null || strcasecmp(trim((string) $country), $home) === 0;
+		$tax = $taxed ? round($subtotal * ((float) $rates->tax_rate / 100), 2) : 0;
 
 		return array(
 			'currency' => $rates->currency ?: 'USD',
@@ -126,6 +130,7 @@ class CartLibrary {
 			'shipping' => number_format($shipping, 2, '.', ''),
 			'tax' => number_format($tax, 2, '.', ''),
 			'tax_rate' => number_format((float) $rates->tax_rate, 2, '.', ''),
+			'tax_country' => $home, // the one country that pays tax, empty when everyone does
 			'total' => number_format($subtotal + $shipping + $tax, 2, '.', ''),
 			'has_physical' => $this->hasPhysical(),
 		);

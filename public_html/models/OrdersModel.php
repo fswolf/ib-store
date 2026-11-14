@@ -61,7 +61,7 @@ class OrdersModel {
 	// $cart is a CartLibrary, $billing / $shipping are AddressesModel ($shipping null for digital only)
 	public static function create($user, $cart, $billing, $shipping, $notes = '') {
 		$db = new DatabaseLibrary();
-		$totals = $cart->totals();
+		$totals = $cart->totals(($shipping ?: $billing)->country); // tax can depend on where it is going
 		$items = $cart->items();
 		if (!$items) throw new Exception('Your cart is empty');
 

@@ -91,16 +91,17 @@
 				            <span><?= $physical ? '$' . number_format((float) $cart['totals']['shipping'], 2) : 'None' ?></span>
 				        </div>
 
+				        <!-- shipping.js: with tax limited to the store's country (data-country), these two follow the country picked -->
 				        <div class="summary-item">
 				            <span>Tax<?= (float) $cart['totals']['tax_rate'] > 0 ? ' (' . rtrim(rtrim($cart['totals']['tax_rate'], '0'), '.') . '%)' : '' ?></span>
-				            <span>$<?= number_format((float) $cart['totals']['tax'], 2) ?></span>
+				            <span id="summary-tax" data-tax="<?= htmlspecialchars($cart['totals']['tax']) ?>" data-country="<?= htmlspecialchars($cart['totals']['tax_country']) ?>">$<?= number_format((float) $cart['totals']['tax'], 2) ?></span>
 				        </div>
 
 				        <hr>
 
 				        <div class="summary-item total">
 				            <span>Total</span>
-				            <span>$<?= number_format((float) $cart['totals']['total'], 2) ?> <small><?= htmlspecialchars($cart['totals']['currency']) ?></small></span>
+				            <span id="summary-total" data-total="<?= htmlspecialchars($cart['totals']['total']) ?>">$<?= number_format((float) $cart['totals']['total'], 2) ?> <small><?= htmlspecialchars($cart['totals']['currency']) ?></small></span>
 				        </div>
 
 				        <button id="place-order" class="place-order-btn" data-csrf="<?= $csrf_token ?>">
